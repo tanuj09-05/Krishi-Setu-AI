@@ -97,17 +97,21 @@ class OfferListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         lot_id = self.request.data.get('lot')
-        lot = DigitalLot.objects.get(id=lot_id)
+        lot = DigitalLot.objects.filter(id=lot_id).first() if lot_id else DigitalLot.objects.first()
 
         user = self.request.user
+        buyer = None
         if user.is_authenticated and hasattr(user, 'buyer_profile'):
             buyer = user.buyer_profile
         else:
             buyer_id = self.request.data.get('buyer')
             if buyer_id:
-                buyer = Buyer.objects.get(id=buyer_id)
-            else:
+                buyer = Buyer.objects.filter(id=buyer_id).first()
+            if not buyer:
                 buyer = Buyer.objects.first()
+
+        if not lot or not buyer:
+            raise ValueError("Valid lot and buyer required to submit offer.")
 
         offer = serializer.save(lot=lot, buyer=buyer)
         if lot.status == DigitalLot.LotStatus.PUBLISHED:

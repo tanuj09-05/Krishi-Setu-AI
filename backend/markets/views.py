@@ -48,7 +48,10 @@ class MarketPriceHistoryView(APIView):
     def get(self, request):
         crop_name = request.query_params.get('crop', 'Tomato')
         market_id = request.query_params.get('market_id')
-        days = int(request.query_params.get('days', 30))
+        try:
+            days = max(1, min(int(request.query_params.get('days', 30)), 365))
+        except (ValueError, TypeError):
+            days = 30
 
         crop = Crop.objects.filter(name__icontains=crop_name).first() or Crop.objects.first()
         market = Market.objects.filter(id=market_id).first() if market_id else None
@@ -78,7 +81,10 @@ class MarketPriceTrendView(APIView):
     def get(self, request):
         crop_name = request.query_params.get('crop', 'Tomato')
         market_id = request.query_params.get('market_id')
-        days = int(request.query_params.get('days', 30))
+        try:
+            days = max(1, min(int(request.query_params.get('days', 30)), 365))
+        except (ValueError, TypeError):
+            days = 30
 
         crop = Crop.objects.filter(name__icontains=crop_name).first() or Crop.objects.first()
         market = Market.objects.filter(id=market_id).first() if market_id else None
@@ -100,7 +106,10 @@ class MarketPriceForecastView(APIView):
     def get(self, request):
         crop_name = request.query_params.get('crop', 'Tomato')
         market_id = request.query_params.get('market_id')
-        days_ahead = int(request.query_params.get('days', 7))
+        try:
+            days_ahead = max(1, min(int(request.query_params.get('days', 7)), 30))
+        except (ValueError, TypeError):
+            days_ahead = 7
 
         crop = Crop.objects.filter(name__icontains=crop_name).first() or Crop.objects.first()
         market = Market.objects.filter(id=market_id).first() if market_id else None
@@ -121,7 +130,12 @@ class MarketCompareView(APIView):
 
     def get(self, request):
         crop_name = request.query_params.get('crop', 'Tomato')
-        quantity_kg = float(request.query_params.get('quantity_kg', 500.0))
+        try:
+            quantity_kg = float(request.query_params.get('quantity_kg', 500.0))
+            if quantity_kg <= 0:
+                quantity_kg = 500.0
+        except (ValueError, TypeError):
+            quantity_kg = 500.0
 
         crop = Crop.objects.filter(name__icontains=crop_name).first() or Crop.objects.first()
 

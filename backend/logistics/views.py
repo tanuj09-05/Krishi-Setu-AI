@@ -15,8 +15,13 @@ class LogisticsListCreateView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        distance = float(self.request.data.get('distance_km', 28.0))
-        quantity = float(self.request.data.get('quantity_kg', 500.0))
+        try:
+            distance = max(1.0, float(self.request.data.get('distance_km', 28.0)))
+            quantity = max(1.0, float(self.request.data.get('quantity_kg', 500.0)))
+        except (ValueError, TypeError):
+            distance = 28.0
+            quantity = 500.0
+
         vehicle_type = self.request.data.get('vehicle_type', 'Tata Ace (Chhota Hathi)')
 
         vehicle = TransportVehicle.objects.filter(vehicle_type__icontains=vehicle_type.split(' ')[0]).first()

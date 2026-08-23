@@ -14,7 +14,12 @@ class RecommendationGenerateView(APIView):
     def post(self, request):
         crop_id = request.data.get('crop_id')
         crop_name = request.data.get('crop_name', 'Tomato')
-        quantity_kg = float(request.data.get('quantity_kg', 500.0))
+        try:
+            quantity_kg = float(request.data.get('quantity_kg', 500.0))
+            if quantity_kg <= 0:
+                quantity_kg = 500.0
+        except (ValueError, TypeError):
+            quantity_kg = 500.0
         quality_grade = request.data.get('quality_grade', 'Grade A (Export/Premium)')
 
         if request.user.is_authenticated and hasattr(request.user, 'farmer_profile'):
@@ -49,7 +54,12 @@ class RecommendationGenerateView(APIView):
     def get(self, request):
         # Support GET query params as well for fast demo testing
         crop_name = request.query_params.get('crop', 'Tomato')
-        quantity_kg = float(request.query_params.get('quantity_kg', 500.0))
+        try:
+            quantity_kg = float(request.query_params.get('quantity_kg', 500.0))
+            if quantity_kg <= 0:
+                quantity_kg = 500.0
+        except (ValueError, TypeError):
+            quantity_kg = 500.0
 
         farmer = FarmerProfile.objects.first()
         crop = Crop.objects.filter(name__icontains=crop_name).first() or Crop.objects.first()
