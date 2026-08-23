@@ -41,8 +41,8 @@ class LotListCreateView(generics.ListCreateAPIView):
                     DigitalLot.LotStatus.PUBLISHED,
                     DigitalLot.LotStatus.OFFER_RECEIVED,
                     DigitalLot.LotStatus.DEAL_LOCKED,
-                    DigitalLot.LotStatus.DISPATCHED,
-                    DigitalLot.LotStatus.COMPLETED,
+                    DigitalLot.LotStatus.IN_TRANSIT,
+                    DigitalLot.LotStatus.SOLD,
                 ])
 
         if status_param:
