@@ -9,88 +9,85 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary brand palette — deep forest/emerald green
+        // Deep forest & refined emerald brand palette
         brand: {
-          50:  '#f0fdf0',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',  // primary action green
-          700: '#15803d',
-          800: '#166534',  // deep forest
-          900: '#14532d',
-          950: '#052e16',
+          50:  '#f2f8f4',
+          100: '#e1efe6',
+          200: '#c5dfce',
+          300: '#9ec7ad',
+          400: '#6fa784',
+          500: '#46875f',
+          600: '#2f6c47',
+          700: '#245538',  // Primary brand deep green
+          800: '#1d442d',  // Forest
+          900: '#173725',
+          950: '#0c1f14',
         },
-        // Warm earth accent for secondary highlights
-        earth: {
-          50:  '#faf8f5',
-          100: '#f3ede4',
-          200: '#e5d7c3',
-          300: '#d4bc9d',
-          400: '#c29d74',
-          500: '#a87f54',
-          600: '#8c6442',
-          700: '#6f4c34',
-          800: '#5a3d2c',
-          900: '#4a3326',
+        // Sage accent
+        sage: {
+          50:  '#f6f7f4',
+          100: '#eaede5',
+          200: '#d7ded0',
+          300: '#becbb5',
+          400: '#9fb393',
+          500: '#7f9872',
+          600: '#637a57',
+          700: '#4d5f43',
+          800: '#3e4d37',
+          900: '#34402f',
         },
-        // Accent palette
+        // Purposeful status accents
         accent: {
-          gold:    '#f59e0b',
-          amber:   '#d97706',
-          sky:     '#0284c7',
-          emerald: '#10b981',
-          rose:    '#f43f5e',
-          teal:    '#0d9488',
+          amber:   '#b45309',
+          amberBg: '#fef3c7',
+          rose:    '#be123c',
+          roseBg:  '#ffe4e6',
+          sky:     '#0369a1',
+          skyBg:   '#e0f2fe',
         },
-        // Warm neutral grays for backgrounds/surfaces
+        // Warm neutral stone grays
         stone: {
-          50:  '#fafaf9',
-          100: '#f5f5f4',
-          200: '#e7e5e4',
-          300: '#d6d3d1',
-          400: '#a8a29e',
-          500: '#78716c',
-          600: '#57534e',
-          700: '#44403c',
-          800: '#292524',
-          900: '#1c1917',
+          50:  '#fafaf9',  // Base warm canvas
+          100: '#f5f5f4',  // Light surface / hover
+          200: '#e7e5e4',  // Subtle 1px border
+          300: '#d6d3d1',  // Stronger border
+          400: '#a8a29e',  // Muted icons / placeholders
+          500: '#78716c',  // Secondary labels
+          600: '#57534e',  // Medium body text
+          700: '#44403c',  // Body text
+          800: '#292524',  // High contrast text
+          900: '#1c1917',  // Primary heading
           950: '#0c0a09',
         }
       },
       fontFamily: {
-        sans: ['Inter', 'var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'var(--font-inter)', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       fontSize: {
-        '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
+        '2xs': ['0.6875rem', { lineHeight: '0.9375rem' }],
       },
       boxShadow: {
-        'soft':      '0 1px 3px 0 rgba(0,0,0,0.06), 0 1px 2px 0 rgba(0,0,0,0.04)',
-        'card':      '0 1px 4px 0 rgba(0,0,0,0.06), 0 1px 2px -1px rgba(0,0,0,0.04)',
-        'card-md':   '0 4px 12px -2px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04)',
-        'highlight': '0 0 0 2px #16a34a, 0 4px 16px -4px rgba(22,163,74,0.3)',
-        'inner-sm':  'inset 0 1px 2px rgba(0,0,0,0.06)',
+        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        'card':   '0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02)',
+        'card-md':'0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.02)',
+        'menu':   '0 4px 16px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -2px rgba(0, 0, 0, 0.04)',
       },
       borderRadius: {
-        'xl':  '0.75rem',
-        '2xl': '1rem',
-        '3xl': '1.25rem',
+        'sm': '0.25rem',  // 4px
+        'md': '0.375rem', // 6px
+        'lg': '0.5rem',   // 8px (default button/input)
+        'xl': '0.75rem',  // 12px (default surface)
+        '2xl':'1rem',     // 16px (modal/large container)
       },
       letterSpacing: {
-        tightest: '-0.04em',
+        tightest: '-0.035em',
         tighter:  '-0.02em',
         tight:    '-0.01em',
+        wide:     '0.025em',
+        wider:    '0.05em',
       },
-      transitionDuration: {
-        '150': '150ms',
-        '200': '200ms',
-        '250': '250ms',
-      }
     },
   },
   plugins: [],
 };
 export default config;
-

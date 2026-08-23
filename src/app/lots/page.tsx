@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
-import { Boxes, PlusCircle } from 'lucide-react';
+import { Boxes, Plus } from 'lucide-react';
 import { LotCard } from '../../components/lots/LotCard';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -29,17 +29,17 @@ export default function LotsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        eyebrow="Digital Produce Inventory"
+        eyebrow="Produce Inventory"
         eyebrowIcon={Boxes}
-        title="My Lots & Buyer Bids"
+        title="Digital Lots & Buyer Bids"
         description="Manage your harvest listings, review incoming institutional bids, and negotiate optimal prices."
         action={
           <Link
             href="/lots/new"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors duration-150 active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold rounded-md shadow-subtle transition-colors active:scale-95"
           >
-            <PlusCircle className="w-3.5 h-3.5" />
-            <span>New Lot</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>Create New Lot</span>
           </Link>
         }
       />
@@ -60,16 +60,16 @@ export default function LotsPage() {
             <button
               key={tab.id}
               onClick={() => setFilterStatus(tab.id)}
-              className={`px-4 py-2.5 text-xs font-medium whitespace-nowrap border-b-2 transition-all duration-150 ${
+              className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                 isActive
-                  ? 'border-brand-700 text-brand-700 font-semibold'
-                  : 'border-transparent text-stone-500 hover:text-gray-700 hover:border-stone-300'
+                  ? 'border-brand-700 text-brand-800 font-semibold'
+                  : 'border-transparent text-stone-500 hover:text-stone-800'
               }`}
             >
               {tab.label}
               {count > 0 && (
-                <span className={`ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
-                  isActive ? 'bg-brand-100 text-brand-700' : 'bg-stone-100 text-stone-500'
+                <span className={`ml-1.5 text-2xs px-1.5 py-0.2 rounded font-semibold ${
+                  isActive ? 'bg-brand-100 text-brand-800' : 'bg-stone-100 text-stone-500'
                 }`}>
                   {count}
                 </span>
@@ -90,14 +90,14 @@ export default function LotsPage() {
         <EmptyState
           icon={Boxes}
           title="No lots in this category"
-          description="Create a new digital lot to get matched with verified institutional buyers."
+          description="Create a digital lot to receive direct bids from corporate buyers and food processors."
           action={
             <Link
               href="/lots/new"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-700 text-white rounded-lg text-xs font-semibold hover:bg-brand-800 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-700 text-white rounded-md text-xs font-semibold hover:bg-brand-800 transition-colors"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
-              Create Lot
+              <Plus className="w-3.5 h-3.5" />
+              <span>Create Lot</span>
             </Link>
           }
         />

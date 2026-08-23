@@ -13,20 +13,20 @@ interface BadgeProps {
 }
 
 const variantMap: Record<BadgeVariant, string> = {
-  success: 'bg-brand-50 text-brand-800 border-brand-200',
-  warning: 'bg-amber-50 text-amber-800 border-amber-200',
-  info:    'bg-sky-50 text-sky-800 border-sky-200',
+  success: 'bg-brand-50 text-brand-800 border-brand-200/80',
+  warning: 'bg-accent-amberBg text-accent-amber border-amber-200/80',
+  info:    'bg-accent-skyBg text-accent-sky border-sky-200/80',
   neutral: 'bg-stone-100 text-stone-700 border-stone-200',
-  danger:  'bg-rose-50 text-rose-700 border-rose-200',
+  danger:  'bg-accent-roseBg text-accent-rose border-rose-200/80',
   purple:  'bg-purple-50 text-purple-800 border-purple-200',
 };
 
 const dotMap: Record<BadgeVariant, string> = {
-  success: 'bg-brand-500',
-  warning: 'bg-amber-500',
-  info:    'bg-sky-500',
+  success: 'bg-brand-600',
+  warning: 'bg-accent-amber',
+  info:    'bg-accent-sky',
   neutral: 'bg-stone-400',
-  danger:  'bg-rose-500',
+  danger:  'bg-accent-rose',
   purple:  'bg-purple-500',
 };
 
@@ -41,8 +41,8 @@ export const Badge: React.FC<BadgeProps> = ({
   return (
     <span
       className={clsx(
-        'inline-flex items-center gap-1.5 font-semibold border rounded-full',
-        size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1',
+        'inline-flex items-center gap-1.5 font-medium border rounded-md',
+        size === 'sm' ? 'text-2xs px-2 py-0.5' : 'text-xs px-2.5 py-0.5',
         variantMap[variant],
         className
       )}

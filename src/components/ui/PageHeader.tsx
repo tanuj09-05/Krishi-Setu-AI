@@ -19,27 +19,24 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 ${className}`}>
-      <div className="min-w-0">
+    <div className={`flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 border-b border-stone-200/80 ${className}`}>
+      <div>
         {eyebrow && (
-          <div className="flex items-center gap-1.5 mb-1.5">
-            {EyebrowIcon && (
-              <EyebrowIcon className="w-3.5 h-3.5 text-brand-600 shrink-0" />
-            )}
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-widest">
-              {eyebrow}
-            </span>
+          <div className="flex items-center gap-1.5 mb-1 text-[11px] font-semibold text-brand-700 uppercase tracking-wider">
+            {EyebrowIcon && <EyebrowIcon className="w-3.5 h-3.5 text-brand-600" />}
+            <span>{eyebrow}</span>
           </div>
         )}
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight leading-snug">
+        <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight leading-snug">
           {title}
         </h1>
         {description && (
-          <p className="text-sm text-stone-500 mt-1 leading-relaxed max-w-2xl">
+          <p className="text-xs sm:text-sm text-stone-500 mt-0.5 max-w-2xl leading-relaxed">
             {description}
           </p>
         )}
       </div>
+
       {action && (
         <div className="shrink-0 flex items-center gap-2">
           {action}

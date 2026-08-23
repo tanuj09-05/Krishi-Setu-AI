@@ -11,7 +11,6 @@ import {
 import { HeroRecommendationCard } from '../../components/recommendation/HeroRecommendationCard';
 import { PriceForecastChart } from '../../components/recommendation/PriceForecastChart';
 import { FactorAnalysis } from '../../components/recommendation/FactorAnalysis';
-import { NetRealizationFormula } from '../../components/recommendation/NetRealizationFormula';
 import { MandiComparisonTable } from '../../components/market/MandiComparisonTable';
 import { recommendationService } from '../../services/recommendationService';
 import { MOCK_CROPS } from '../../data/mockData';
@@ -40,18 +39,18 @@ export default function RecommendationsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        eyebrow="Autonomous Recommendation Engine"
+        eyebrow="Decision Support Engine"
         eyebrowIcon={Sparkles}
-        title="AI Sale Timing & Buyer Recommendation"
-        description="Transparent scoring considering price curves, arrival surges, freight penalties, and buyer credit ratings."
+        title="AI Sale Timing & Buyer Matching"
+        description="Comprehensive optimization assessing supply waves, regional price curves, freight deductions, and buyer credit ratings."
         action={
           <div className="flex items-center gap-2">
             <div>
-              <p className="text-[9px] font-semibold text-stone-400 uppercase tracking-wider mb-1">Crop</p>
+              <label className="text-2xs font-semibold text-stone-400 uppercase tracking-wider block mb-0.5">Crop</label>
               <select
                 value={selectedCropForAnalysis}
                 onChange={(e) => setSelectedCropForAnalysis(e.target.value)}
-                className="px-3 py-2 bg-white border border-stone-200 rounded-lg text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                className="px-2.5 py-1.5 bg-white border border-stone-200 rounded-md text-xs font-semibold text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
               >
                 {MOCK_CROPS.map((c) => (
                   <option key={c.id} value={c.name}>{c.name}</option>
@@ -59,11 +58,11 @@ export default function RecommendationsPage() {
               </select>
             </div>
             <div>
-              <p className="text-[9px] font-semibold text-stone-400 uppercase tracking-wider mb-1">Qty</p>
+              <label className="text-2xs font-semibold text-stone-400 uppercase tracking-wider block mb-0.5">Quantity</label>
               <select
                 value={selectedQuantityKg}
                 onChange={(e) => setSelectedQuantityKg(parseInt(e.target.value))}
-                className="px-3 py-2 bg-white border border-stone-200 rounded-lg text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                className="px-2.5 py-1.5 bg-white border border-stone-200 rounded-md text-xs font-semibold text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
               >
                 <option value="500">500 kg</option>
                 <option value="1200">1,200 kg</option>
@@ -75,10 +74,10 @@ export default function RecommendationsPage() {
         }
       />
 
-      {/* 1. Hero Recommendation Panel */}
+      {/* 1. Hero Recommendation Briefing */}
       {recommendation && <HeroRecommendationCard recommendation={recommendation} />}
 
-      {/* 2. Price Forecast Chart */}
+      {/* 2. Statistical Price Forecast Chart */}
       {recommendation && (
         <PriceForecastChart
           data={recommendation.priceForecast7Days}
@@ -87,7 +86,7 @@ export default function RecommendationsPage() {
         />
       )}
 
-      {/* 3. Explainable Factor Analysis */}
+      {/* 3. Explainable Factor Analysis & Trade Risk */}
       {recommendation && (
         <FactorAnalysis
           reasons={recommendation.reasons}
@@ -95,13 +94,12 @@ export default function RecommendationsPage() {
         />
       )}
 
-      {/* 4. Comparison Table */}
+      {/* 4. Alternative Destinations Realization Matrix */}
       {recommendation && (
         <div>
           <SectionHeader
             icon={Coins}
-            iconAccent="green"
-            title="Alternative Destinations — Net Realization Comparison"
+            title="Alternative Destinations Net Realization Comparison"
           />
           <MandiComparisonTable
             data={recommendation.breakdown}
@@ -111,26 +109,26 @@ export default function RecommendationsPage() {
         </div>
       )}
 
-      {/* CTA Bar */}
-      <div className="bg-[#0d1810] text-white rounded-2xl px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-white/10 shadow-card-md">
+      {/* Bottom Action Callout */}
+      <div className="bg-white rounded-xl p-5 border border-stone-200/80 shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-semibold text-white">Ready to execute the recommended sale?</h3>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Connect with Buyer A immediately or list a digital lot for competitive bidding.
+          <h3 className="text-sm font-semibold text-stone-900">Ready to execute this optimal recommendation?</h3>
+          <p className="text-xs text-stone-500 mt-0.5">
+            Connect directly with verified corporate buyers or list your produce for network-wide bidding.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Link
             href="/lots/new"
-            className="px-4 py-2 text-xs font-medium text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors"
+            className="px-3.5 py-2 text-xs font-medium text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200/80 rounded-md transition-colors"
           >
-            Create Lot
+            Create Digital Lot
           </Link>
           <Link
             href="/buyers"
-            className="px-4 py-2 text-xs font-semibold text-gray-950 bg-amber-400 hover:bg-amber-300 rounded-lg shadow-sm transition-colors active:scale-95 flex items-center gap-1.5"
+            className="px-4 py-2 text-xs font-semibold text-white bg-brand-700 hover:bg-brand-800 rounded-md shadow-subtle transition-colors flex items-center gap-1.5 active:scale-95"
           >
-            Buyer Matching
+            <span>Proceed to Buyer Matching</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

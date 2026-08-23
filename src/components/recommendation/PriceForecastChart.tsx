@@ -65,208 +65,212 @@ export const PriceForecastChart: React.FC<PriceForecastChartProps> = ({
   });
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-card border border-slate-200 space-y-6">
+    <div className="bg-white rounded-xl p-5 sm:p-6 shadow-card border border-stone-200/80 space-y-5">
       {/* Header & Mode Switchers */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-stone-100">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-emerald-100 text-brand-700">
-              <TrendingUp className="w-4 h-4" />
-            </span>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Market Intelligence & Price Dynamics
-            </span>
+            <LineChart className="w-4 h-4 text-stone-500" />
+            <h3 className="font-semibold text-stone-900 text-sm sm:text-base">
+              {cropName} Price Momentum & 7-Day Statistical Forecast
+            </h3>
           </div>
-          <h3 className="font-black text-slate-900 text-lg sm:text-xl mt-1">
-            {cropName} Historical Prices & 7-Day Prototype Forecast
-          </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Transparent statistical momentum and regional arrival surge trajectory (ML-pluggable).
+          <p className="text-xs text-stone-500 mt-0.5">
+            Historical price trajectory mapped against anticipated arrival surges and buyer demand.
           </p>
         </div>
 
         {/* Timeframe & View Toggles */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Timeframe Pills */}
-          <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold">
-            <button
-              onClick={() => setTimeframe(7)}
-              className={`px-3 py-1.5 rounded-lg transition ${
-                timeframe === 7 ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              7D
-            </button>
-            <button
-              onClick={() => setTimeframe(30)}
-              className={`px-3 py-1.5 rounded-lg transition ${
-                timeframe === 30 ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              30D
-            </button>
-            <button
-              onClick={() => setTimeframe(90)}
-              className={`px-3 py-1.5 rounded-lg transition ${
-                timeframe === 90 ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              90D
-            </button>
+          {/* Timeframe Selector */}
+          <div className="flex bg-stone-100 p-0.5 rounded-lg border border-stone-200/60 text-xs">
+            {([7, 30, 90] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTimeframe(t)}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
+                  timeframe === t ? 'bg-white text-stone-900 shadow-subtle' : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                {t}D
+              </button>
+            ))}
           </div>
 
-          <span className="text-xs font-bold text-brand-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-            Confidence: {confidenceScore}%
-          </span>
+          {/* View Mode */}
+          <div className="flex bg-stone-100 p-0.5 rounded-lg border border-stone-200/60 text-xs">
+            <button
+              onClick={() => setActiveTab('combined')}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
+                activeTab === 'combined' ? 'bg-white text-stone-900 shadow-subtle' : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              Full Series
+            </button>
+            <button
+              onClick={() => setActiveTab('forecast')}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
+                activeTab === 'forecast' ? 'bg-white text-brand-800 shadow-subtle' : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              7-Day Forecast
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Key Metric Highlights Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs">
-        <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px] block">Current Spot Rate</span>
-          <div className="text-lg font-black text-slate-900 mt-0.5">₹{currentSpot.toFixed(2)}/kg</div>
-          <span className="text-[10px] text-slate-500">Nashik-Pune APMC avg</span>
+      {/* Metric Callouts */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div className="p-3 bg-stone-50 rounded-lg border border-stone-200/60">
+          <span className="text-2xs text-stone-500 uppercase tracking-wider block">Current Price</span>
+          <span className="text-base font-bold text-stone-900 mt-0.5 block tabular-nums">₹{currentSpot.toFixed(1)}/kg</span>
+          <span className="text-2xs text-stone-400">Modal mandi rate</span>
         </div>
 
-        <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px] block">3-Day Peak Target</span>
-          <div className="text-lg font-black text-emerald-600 mt-0.5">₹{peakForecast.toFixed(2)}/kg</div>
-          <span className="text-[10px] text-emerald-700 font-bold">+₹{(peakForecast - currentSpot).toFixed(2)}/kg gain</span>
+        <div className="p-3 bg-stone-50 rounded-lg border border-stone-200/60">
+          <span className="text-2xs text-stone-500 uppercase tracking-wider block">Projected Peak</span>
+          <span className="text-base font-bold text-brand-800 mt-0.5 block tabular-nums">₹{peakForecast.toFixed(1)}/kg</span>
+          <span className="text-2xs text-brand-700">In Day 2–3 window</span>
         </div>
 
-        <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px] block">{timeframe}D Historical Range</span>
-          <div className="text-lg font-black text-slate-800 mt-0.5">
+        <div className="p-3 bg-stone-50 rounded-lg border border-stone-200/60">
+          <span className="text-2xs text-stone-500 uppercase tracking-wider block">{timeframe}D Low / High</span>
+          <span className="text-base font-bold text-stone-900 mt-0.5 block tabular-nums">
             ₹{minHistorical.toFixed(1)} – ₹{maxHistorical.toFixed(1)}
-          </div>
-          <span className="text-[10px] text-slate-500">Min to Max spread</span>
+          </span>
+          <span className="text-2xs text-stone-400">Historical range</span>
         </div>
 
-        <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px] block">Supply Influx Alert</span>
-          <div className="text-lg font-black text-amber-600 mt-0.5">+70% Influx</div>
-          <span className="text-[10px] text-amber-700 font-medium">Expected from Day 4 onwards</span>
+        <div className="p-3 bg-brand-50/70 rounded-lg border border-brand-200">
+          <span className="text-2xs text-brand-800 uppercase tracking-wider font-semibold block">Recommendation</span>
+          <span className="text-sm font-bold text-brand-900 mt-0.5 block">Sell on Day 2–3</span>
+          <span className="text-2xs text-brand-700">{confidenceScore}% statistical confidence</span>
         </div>
       </div>
 
-      {/* Chart Legend */}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs pt-1">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-1 bg-emerald-600 rounded-full"></span>
-            <span className="font-bold text-slate-700">Historical Actuals ({timeframe}D)</span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-1 border-t-2 border-dashed border-indigo-600"></span>
-            <span className="font-bold text-indigo-700">Prototype Forecast (7D)</span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-indigo-100 border border-indigo-300 rounded"></span>
-            <span className="text-slate-500">Uncertainty Range Band</span>
-          </div>
+      {/* SVG Chart Visualization */}
+      <div className="relative h-60 w-full bg-stone-50/50 rounded-lg p-4 border border-stone-200/60 flex flex-col justify-between">
+        {/* Y-Axis Guidelines & Labels */}
+        <div className="absolute inset-x-4 inset-y-4 flex flex-col justify-between pointer-events-none text-2xs text-stone-400">
+          {[overallMax, (overallMax + overallMin) / 2, overallMin].map((val, i) => (
+            <div key={i} className="flex items-center w-full">
+              <span className="w-10 tabular-nums">₹{val.toFixed(1)}</span>
+              <div className="flex-1 border-b border-stone-200/70 border-dashed ml-2"></div>
+            </div>
+          ))}
         </div>
 
-        <span className="text-[11px] text-slate-400 italic">
-          Solid Line: Historical | Dashed Line: Prototype Forecast
-        </span>
-      </div>
+        {/* SVG Visualization Canvas */}
+        <div className="relative flex-1 pl-12 pr-4 pt-3 pb-6 flex items-end">
+          <svg className="w-full h-full overflow-visible" viewBox="0 0 1000 200" preserveAspectRatio="none">
+            {/* 1. Historical Line (Solid Slate) */}
+            {activeTab !== 'forecast' && sampledHistory.length > 1 && (
+              <polyline
+                fill="none"
+                stroke="#78716c"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={sampledHistory
+                  .map((pt, i) => {
+                    const x = (i / (sampledHistory.length - 1 + (activeTab === 'combined' ? data.length : 0))) * 1000;
+                    const y = 200 - ((pt.modalPrice - overallMin) / scaleRange) * 180 - 10;
+                    return `${x},${y}`;
+                  })
+                  .join(' ')}
+              />
+            )}
 
-      {/* Visual Forecast & Historical Composite Bar / Trend Grid */}
-      <div className="border border-slate-100 rounded-2xl p-4 sm:p-5 bg-gradient-to-b from-white to-slate-50/50">
-        <div className="grid grid-cols-7 gap-2 sm:gap-3 items-end h-64 relative pt-10 pb-4 border-b border-slate-200">
-          {/* Optimal 2-3 Day Window Shading */}
-          <div className="absolute inset-y-0 left-[14.28%] right-[57.14%] bg-emerald-500/10 border-x-2 border-dashed border-emerald-500/50 pointer-events-none rounded-xl flex items-start justify-center pt-2 z-10">
-            <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full border border-emerald-300 shadow-sm flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-brand-600" /> Optimal Window
+            {/* 2. Forecast Confidence Range Polygon (Soft Sage Area) */}
+            {activeTab !== 'history' && data.length > 0 && (
+              <polygon
+                fill="rgba(34, 197, 94, 0.08)"
+                points={[
+                  ...data.map((d, i) => {
+                    const startOffset = activeTab === 'combined' ? (sampledHistory.length - 1) : 0;
+                    const totalPoints = (activeTab === 'combined' ? sampledHistory.length - 1 + data.length : data.length - 1) || 1;
+                    const x = ((startOffset + i) / totalPoints) * 1000;
+                    const upper = d.upperEstimate || (d.expectedPrice + 1.2);
+                    const y = 200 - ((upper - overallMin) / scaleRange) * 180 - 10;
+                    return `${x},${y}`;
+                  }),
+                  ...data
+                    .slice()
+                    .reverse()
+                    .map((d, i) => {
+                      const revIdx = data.length - 1 - i;
+                      const startOffset = activeTab === 'combined' ? (sampledHistory.length - 1) : 0;
+                      const totalPoints = (activeTab === 'combined' ? sampledHistory.length - 1 + data.length : data.length - 1) || 1;
+                      const x = ((startOffset + revIdx) / totalPoints) * 1000;
+                      const lower = d.lowerEstimate || (d.expectedPrice - 1.2);
+                      const y = 200 - ((lower - overallMin) / scaleRange) * 180 - 10;
+                      return `${x},${y}`;
+                    }),
+                ].join(' ')}
+              />
+            )}
+
+            {/* 3. Forecast Trend Line (Green Dashed) */}
+            {activeTab !== 'history' && data.length > 0 && (
+              <polyline
+                fill="none"
+                stroke="#16a34a"
+                strokeWidth="2.5"
+                strokeDasharray="4 3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={data
+                  .map((d, i) => {
+                    const startOffset = activeTab === 'combined' ? (sampledHistory.length - 1) : 0;
+                    const totalPoints = (activeTab === 'combined' ? sampledHistory.length - 1 + data.length : data.length - 1) || 1;
+                    const x = ((startOffset + i) / totalPoints) * 1000;
+                    const y = 200 - ((d.expectedPrice - overallMin) / scaleRange) * 180 - 10;
+                    return `${x},${y}`;
+                  })
+                  .join(' ')}
+              />
+            )}
+
+            {/* Peak Forecast Highlight Dot */}
+            {activeTab !== 'history' && data.length > recommendedDayIndex && (
+              <g>
+                <circle
+                  cx={
+                    (( (activeTab === 'combined' ? sampledHistory.length - 1 : 0) + recommendedDayIndex) /
+                      (activeTab === 'combined' ? sampledHistory.length - 1 + data.length : data.length - 1 || 1)) *
+                    1000
+                  }
+                  cy={200 - ((data[recommendedDayIndex].expectedPrice - overallMin) / scaleRange) * 180 - 10}
+                  r="5"
+                  fill="#15803d"
+                  stroke="#ffffff"
+                  strokeWidth="2"
+                />
+              </g>
+            )}
+          </svg>
+        </div>
+
+        {/* Legend */}
+        <div className="flex items-center justify-between text-2xs text-stone-500 pt-2 border-t border-stone-200/60">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-0.5 bg-stone-500 inline-block"></span>
+              <span>Historical Price</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-0.5 border-b border-brand-600 border-dashed inline-block"></span>
+              <span className="text-brand-800 font-medium">7D AI Projected Price</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded bg-brand-100 border border-brand-200 inline-block"></span>
+              <span>Confidence Range</span>
             </span>
           </div>
 
-          {data.map((item, idx) => {
-            const isOptimal = idx <= 2;
-            const isPeak = idx === recommendedDayIndex;
-            const heightPercent = Math.max(
-              25,
-              Math.round(((item.expectedPrice - overallMin) / scaleRange) * 100)
-            );
-            const lowerPrice = item.lowerEstimate ?? item.expectedPrice - 0.6;
-            const upperPrice = item.upperEstimate ?? item.expectedPrice + 0.6;
-
-            return (
-              <div
-                key={item.day}
-                className="flex flex-col items-center h-full justify-end group relative z-20"
-              >
-                {/* Rich Hover Tooltip */}
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-16 bg-slate-900 text-white text-[11px] font-medium py-1.5 px-3 rounded-xl shadow-xl pointer-events-none whitespace-nowrap z-30 space-y-0.5">
-                  <div className="font-bold text-emerald-400">
-                    Predicted: ₹{item.expectedPrice.toFixed(2)}/kg
-                  </div>
-                  <div className="text-[10px] text-slate-300">
-                    Range: ₹{lowerPrice.toFixed(2)} – ₹{upperPrice.toFixed(2)}
-                  </div>
-                  <div className="text-[10px] text-amber-300">
-                    Regional Arrivals: {item.arrivalIndex}%
-                  </div>
-                </div>
-
-                {/* Price Display */}
-                <span
-                  className={`text-xs font-black mb-1.5 transition ${
-                    isPeak ? 'text-brand-700 scale-110' : 'text-slate-700'
-                  }`}
-                >
-                  ₹{item.expectedPrice.toFixed(1)}
-                </span>
-
-                {/* Range Uncertainty Tag */}
-                <span className="text-[9px] text-slate-400 font-mono mb-1 hidden sm:block">
-                  ±₹{(upperPrice - item.expectedPrice).toFixed(1)}
-                </span>
-
-                {/* Bar Pillar with Uncertainty Shadow */}
-                <div
-                  style={{ height: `${heightPercent}%` }}
-                  className={`w-full max-w-[42px] rounded-t-xl transition-all duration-300 relative ${
-                    isPeak
-                      ? 'bg-gradient-to-t from-brand-600 to-emerald-400 shadow-md shadow-emerald-600/30'
-                      : isOptimal
-                      ? 'bg-gradient-to-t from-emerald-500 to-emerald-300'
-                      : 'bg-gradient-to-t from-slate-300 to-slate-200'
-                  }`}
-                >
-                  {/* Arrival surge inner indicator bar */}
-                  <div
-                    style={{ height: `${Math.min(100, item.arrivalIndex / 2.2)}%` }}
-                    className="w-1.5 bg-amber-400/80 rounded-full mx-auto absolute bottom-1 left-1/2 -translate-x-1/2"
-                    title={`Arrival Surge: ${item.arrivalIndex}`}
-                  ></div>
-                </div>
-
-                {/* Day Label */}
-                <span className="text-[11px] font-bold text-slate-700 mt-2 truncate max-w-full">
-                  {item.date}
-                </span>
-                <span className="text-[9px] text-slate-400">{item.day.split(' ')[0]}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Transparent Methodology & ML Pluggable Notice */}
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-start gap-3 text-xs text-slate-600">
-        <Info className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <span className="font-bold text-slate-800 block">
-            Transparent Prototype Statistical Model
+          <span className="text-stone-400 hidden sm:inline">
+            Confidence: <strong className="text-stone-700">{confidenceScore}%</strong>
           </span>
-          <p className="text-[11px] text-slate-500 leading-relaxed">
-            This forecast is derived from moving momentum, seasonal volume patterns, and regional arrival velocity.
-            Designed for modular replacement with trained Prophet / LightGBM time-series models without UI changes.
-          </p>
         </div>
       </div>
     </div>

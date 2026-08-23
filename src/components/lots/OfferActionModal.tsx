@@ -45,133 +45,138 @@ export const OfferActionModal: React.FC<OfferActionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/40 backdrop-blur-xs">
+      <div className="bg-white rounded-xl max-w-lg w-full shadow-menu border border-stone-200 overflow-hidden animate-slide-up">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-emerald-900 to-slate-900 text-white p-5 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-brand-400 block">
+            <span className="text-2xs font-semibold uppercase tracking-wider text-brand-700 block">
               Negotiation & Deal Lock
             </span>
-            <h3 className="font-bold text-base sm:text-lg text-white">
+            <h3 className="font-bold text-base text-stone-900 mt-0.5">
               Offer from {offer.buyerName}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+            className="text-stone-400 hover:text-stone-700 p-1 rounded-md transition-colors"
+            aria-label="Close dialog"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
-          {/* Buyer Trust & Rating */}
-          <div className="flex items-center justify-between bg-slate-50 rounded-2xl p-3.5 border border-slate-100 text-xs">
-            <div>
-              <span className="text-slate-500 block">Buyer Category:</span>
-              <strong className="text-slate-900 font-bold">{offer.buyerType}</strong>
-            </div>
-            <div className="text-right">
-              <span className="text-slate-500 block">Payment Terms:</span>
-              <strong className="text-emerald-700 font-bold">{offer.paymentTerms}</strong>
-            </div>
-          </div>
-
-          {/* Offer Details Breakdown */}
-          <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-2.5 text-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-600">Offered Price:</span>
-              <span className="text-base font-black text-slate-900">₹{offer.offeredPricePerKg.toFixed(2)}/kg</span>
-            </div>
-            <div className="flex items-center justify-between text-rose-600">
-              <span className="flex items-center gap-1">
-                <Truck className="w-3.5 h-3.5" /> Est. Transport Freight:
+        {/* Modal Body */}
+        <div className="p-5 space-y-4">
+          {/* Summary */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 bg-stone-50 rounded-lg border border-stone-200/60">
+              <span className="text-2xs text-stone-500 uppercase tracking-wider block">Offered Price</span>
+              <span className="text-lg font-bold text-stone-900 mt-0.5 block tabular-nums">
+                ₹{offer.offeredPricePerKg.toFixed(2)}/kg
               </span>
-              <span className="font-semibold">-₹{offer.estimatedTransportPerKg.toFixed(2)}/kg</span>
+              <span className="text-2xs text-stone-400">{offer.buyerType}</span>
             </div>
-            <div className="pt-2 border-t border-emerald-200 flex items-center justify-between text-brand-950 font-black text-sm">
-              <span>Your Estimated Net Realization:</span>
-              <span className="text-base text-brand-700">₹{offer.estimatedNetRealizationPerKg.toFixed(2)}/kg</span>
+
+            <div className="p-3 bg-brand-50 rounded-lg border border-brand-200/80">
+              <span className="text-2xs text-brand-800 uppercase tracking-wider font-semibold block">Net Take-Home</span>
+              <span className="text-lg font-bold text-brand-900 mt-0.5 block tabular-nums">
+                ₹{offer.estimatedNetRealizationPerKg.toFixed(2)}/kg
+              </span>
+              <span className="text-2xs text-brand-700">₹{netTakeHome.toLocaleString('en-IN')} total in-hand</span>
             </div>
           </div>
 
-          {/* Total Net Revenue Preview */}
-          <div className="bg-slate-900 text-white rounded-2xl p-4 text-center">
-            <span className="text-xs text-slate-400 block mb-1">
-              Total In-Bank Payout for {lot.quantityKg} kg {lot.cropName}:
-            </span>
-            <div className="text-2xl sm:text-3xl font-black text-emerald-400">
-              ₹{netTakeHome.toLocaleString('en-IN')}
+          {/* Details breakdown */}
+          <div className="space-y-2 text-xs border border-stone-200/80 rounded-lg p-3 bg-stone-50/50">
+            <div className="flex items-center justify-between">
+              <span className="text-stone-500">Lot & Quantity:</span>
+              <span className="font-semibold text-stone-900">{lot.cropName} ({lot.quantityKg} kg)</span>
             </div>
-            <span className="text-[10px] text-slate-400 mt-1 block">
-              Protected via Safe Agri-Escrow until weight & grade confirmation.
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-stone-500">Gross Total:</span>
+              <span className="font-semibold text-stone-900 tabular-nums">₹{totalGross.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex items-center justify-between text-accent-rose">
+              <span>Estimated Logistics Deduction:</span>
+              <span className="font-semibold tabular-nums">−₹{transportDeduction.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-stone-500">Logistics Terms:</span>
+              <span className="font-medium text-stone-700">
+                {offer.pickupOffered ? 'Farm gate pickup included' : 'Self drop to hub required'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-stone-500">Payment Terms:</span>
+              <span className="font-medium text-stone-700">{offer.paymentTerms}</span>
+            </div>
           </div>
 
-          {/* Counter Offer Input Mode */}
+          {/* Counter Offer Form */}
           {isCountering ? (
             <form onSubmit={handleCounter} className="space-y-3 pt-2">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Your Proposed Counter Price (₹/kg)
+                <label className="block text-xs font-semibold text-stone-700 mb-1">
+                  Propose Counter Price (₹/kg)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 font-semibold text-xs pointer-events-none">₹</span>
                   <input
                     type="number"
                     step="0.5"
+                    min="5"
+                    max="500"
                     value={counterPrice}
                     onChange={(e) => setCounterPrice(parseFloat(e.target.value) || 0)}
-                    className="w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:ring-2 focus:ring-brand-500"
+                    className="w-full pl-7 pr-3 py-2 bg-white border border-stone-300 rounded-md text-sm font-semibold text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
+                    required
                   />
                 </div>
+                <p className="text-2xs text-stone-500 mt-1">
+                  Buyer will receive your proposal with updated net realization calculations.
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setIsCountering(false)}
-                  className="px-4 py-2.5 bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs"
+                  className="px-3 py-1.5 text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 rounded-md transition-colors"
                 >
-                  Back
+                  Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-md transition"
+                  className="flex-1 py-1.5 bg-brand-700 hover:bg-brand-800 text-white font-semibold text-xs rounded-md shadow-subtle transition-colors"
                 >
-                  Send Counter Proposal (₹{counterPrice}/kg)
+                  Send Counter Proposal
                 </button>
               </div>
             </form>
           ) : (
-            /* Action Buttons: Accept / Counter / Reject */
-            <div className="pt-2 grid grid-cols-3 gap-2">
+            <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
               <button
                 type="button"
                 onClick={handleReject}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl text-xs border border-rose-200 transition"
+                className="w-full sm:w-auto px-3 py-2 text-xs font-medium text-accent-rose hover:bg-rose-50 border border-rose-200 rounded-md transition-colors"
               >
-                <XCircle className="w-4 h-4" />
-                <span>Decline</span>
+                Decline
               </button>
-
               <button
                 type="button"
                 onClick={() => setIsCountering(true)}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold rounded-xl text-xs border border-amber-200 transition"
+                className="w-full sm:w-auto flex-1 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-100 border border-stone-300 rounded-md transition-colors"
               >
-                <ArrowRightLeft className="w-4 h-4" />
-                <span>Counter</span>
+                Counter Offer
               </button>
-
               <button
                 type="button"
                 onClick={handleAccept}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-md shadow-brand-600/30 transition active:scale-95"
+                className="w-full sm:w-auto flex-1 px-4 py-2 bg-brand-700 hover:bg-brand-800 text-white font-semibold text-xs rounded-md shadow-subtle transition-colors active:scale-95 flex items-center justify-center gap-1"
               >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Accept & Lock</span>
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Accept & Lock Deal</span>
               </button>
             </div>
           )}

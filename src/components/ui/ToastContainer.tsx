@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { CheckCircle2, AlertCircle, Info, X, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export const ToastContainer: React.FC = () => {
   const { toasts, dismissToast } = useApp();
@@ -10,32 +10,33 @@ export const ToastContainer: React.FC = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div
-      className="fixed bottom-20 lg:bottom-5 right-4 sm:right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
-      aria-live="polite"
-      aria-label="Notifications"
-    >
+    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
       {toasts.map((toast) => {
-        const styles = {
-          success: { bg: 'bg-gray-900 border-brand-700/50', icon: <CheckCircle2 className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" /> },
-          warning: { bg: 'bg-gray-900 border-amber-700/50', icon: <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" /> },
-          error:   { bg: 'bg-gray-900 border-rose-700/50',  icon: <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" /> },
-          info:    { bg: 'bg-gray-900 border-sky-700/50',   icon: <Info className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" /> },
-        }[toast.type] ?? { bg: 'bg-gray-900 border-white/10', icon: <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" /> };
+        const isSuccess = toast.type === 'success';
+        const isError = toast.type === 'error';
 
         return (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-start gap-3 px-4 py-3 rounded-xl shadow-lg border backdrop-blur-sm text-white animate-slide-in-right ${styles.bg}`}
+            className="pointer-events-auto bg-stone-900 text-white rounded-lg px-4 py-3 shadow-menu border border-stone-800 flex items-start gap-3 animate-slide-up"
+            role="alert"
           >
-            {styles.icon}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold leading-snug">{toast.title}</p>
-              <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{toast.message}</p>
+            <div className="shrink-0 mt-0.5">
+              {isSuccess && <CheckCircle2 className="w-4 h-4 text-brand-400" />}
+              {isError && <AlertCircle className="w-4 h-4 text-accent-rose" />}
+              {!isSuccess && !isError && <Info className="w-4 h-4 text-accent-sky" />}
             </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-white leading-snug">{toast.title}</p>
+              {toast.message && (
+                <p className="text-[11px] text-stone-300 mt-0.5 leading-relaxed">{toast.message}</p>
+              )}
+            </div>
+
             <button
               onClick={() => dismissToast(toast.id)}
-              className="text-slate-500 hover:text-white p-1 rounded-md transition-colors shrink-0"
+              className="text-stone-400 hover:text-white p-0.5 rounded transition-colors shrink-0 -mr-1"
               aria-label="Dismiss notification"
             >
               <X className="w-3.5 h-3.5" />

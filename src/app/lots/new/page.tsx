@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import {
   Boxes,
-  PlusCircle,
+  Plus,
   Calendar,
   Camera,
   Calculator,
@@ -27,7 +27,7 @@ export default function CreateLotPage() {
   const [qualityGrade, setQualityGrade] = useState<QualityGrade>('Grade A (Export/Premium)');
   const [moisturePercentage, setMoisturePercentage] = useState<number>(12);
   const [description, setDescription] = useState<string>(
-    'Uniform sized red tomatoes, hand-picked this morning. Sorted into standard 20kg crates.'
+    'Uniform sized red tomatoes, harvested fresh. Graded into standard 20kg crates.'
   );
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -66,26 +66,26 @@ export default function CreateLotPage() {
   };
 
   const inputClass =
-    'w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-sm text-gray-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition';
+    'w-full px-3 py-2 bg-white border border-stone-200 rounded-md text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-700 transition';
 
-  const labelClass = 'block text-xs font-semibold text-stone-600 uppercase tracking-wider mb-1.5';
+  const labelClass = 'block text-xs font-semibold text-stone-700 mb-1';
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
       <PageHeader
-        eyebrow="Standardized Digital Listing"
-        eyebrowIcon={PlusCircle}
-        title="Create New Digital Lot"
-        description="List your harvest on the KrishiSetu network for AI price matching and verified buyer bids."
+        eyebrow="Listing Engine"
+        eyebrowIcon={Plus}
+        title="Create Digital Produce Lot"
+        description="List your crop harvest to receive competitive bids and AI-matched institutional contracts."
       />
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Left 2 Cols: Form */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-6 border border-stone-200 shadow-card space-y-5">
+        {/* Left Form (2 cols) */}
+        <div className="lg:col-span-2 bg-white rounded-xl p-5 border border-stone-200/80 shadow-card space-y-4">
           {/* Crop & Variety */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={labelClass}>Crop</label>
+              <label className={labelClass}>Crop Type</label>
               <select
                 value={cropName}
                 onChange={(e) => setCropName(e.target.value)}
@@ -128,12 +128,11 @@ export default function CreateLotPage() {
             <div>
               <label className={labelClass}>Harvest Date</label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
                 <input
                   type="date"
                   value={harvestDate}
                   onChange={(e) => setHarvestDate(e.target.value)}
-                  className={`${inputClass} pl-9`}
+                  className={inputClass}
                   required
                 />
               </div>
@@ -168,18 +167,18 @@ export default function CreateLotPage() {
             </div>
           </div>
 
-          {/* Target Price */}
+          {/* Target Selling Price */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center justify-between mb-1">
               <label className={labelClass} style={{ marginBottom: 0 }}>
-                Target Selling Price (₹/kg)
+                Target Price (₹/kg)
               </label>
-              <span className="text-[11px] text-brand-700 font-semibold">
+              <span className="text-2xs text-brand-700 font-semibold">
                 AI Suggested: ₹24.00/kg
               </span>
             </div>
-            <div className="relative mt-1.5">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 font-semibold text-sm pointer-events-none">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 font-semibold text-xs pointer-events-none">
                 ₹
               </span>
               <input
@@ -189,7 +188,7 @@ export default function CreateLotPage() {
                 max="500"
                 value={expectedPricePerKg}
                 onChange={(e) => setExpectedPricePerKg(parseFloat(e.target.value) || 0)}
-                className={`${inputClass} pl-8 text-base font-bold`}
+                className={`${inputClass} pl-7 text-sm font-bold`}
                 required
               />
             </div>
@@ -197,91 +196,84 @@ export default function CreateLotPage() {
 
           {/* Description */}
           <div>
-            <label className={labelClass}>Lot Description & Pickup Notes</label>
+            <label className={labelClass}>Lot Description & Handling Notes</label>
             <textarea
-              rows={3}
+              rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className={inputClass}
-              placeholder="Mention crate packing, tractor accessibility, or specific grading parameters..."
+              placeholder="Mention crate packing, vehicle accessibility, or grading notes..."
             />
           </div>
 
-          {/* Image Upload */}
+          {/* Photos */}
           <div>
-            <label className={labelClass}>Harvest Images</label>
-            <div className="border-2 border-dashed border-stone-200 hover:border-brand-400 rounded-xl p-5 text-center bg-stone-50/50 cursor-pointer transition-colors group">
-              <Camera className="w-7 h-7 text-stone-300 group-hover:text-brand-500 mx-auto mb-2 transition-colors" />
-              <p className="text-xs font-semibold text-gray-700">2 Sample Photos Attached ✓</p>
-              <p className="text-[11px] text-stone-400 mt-0.5">
-                Visual grade auto-classified as Grade A (94% confidence)
+            <label className={labelClass}>Harvest Photos</label>
+            <div className="border border-dashed border-stone-200 hover:border-stone-400 rounded-lg p-4 text-center bg-stone-50/50 cursor-pointer transition-colors">
+              <Camera className="w-5 h-5 text-stone-400 mx-auto mb-1" />
+              <p className="text-xs font-semibold text-stone-700">Sample Photos Attached (2 Photos)</p>
+              <p className="text-2xs text-stone-400 mt-0.5">
+                AI Quality Analysis: Grade A verified
               </p>
             </div>
           </div>
         </div>
 
-        {/* Right Col: Calculator & Submit */}
+        {/* Right Column: Live Net Profit Preview */}
         <div className="space-y-4">
-          {/* Net Profit Preview */}
-          <div className="bg-[#0d1810] text-white rounded-2xl p-5 border border-white/10 shadow-card-md">
-            <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-white/8">
-              <div className="p-2 rounded-lg bg-brand-700/30 text-brand-400">
-                <Calculator className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm text-white">Live Net Profit Preview</h3>
-                <p className="text-[10px] text-slate-500">Instant deductions estimate</p>
-              </div>
+          <div className="bg-white rounded-xl p-5 border border-stone-200/80 shadow-card space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-stone-100">
+              <Calculator className="w-4 h-4 text-stone-500" />
+              <h3 className="font-semibold text-xs sm:text-sm text-stone-900">Live Profit Calculation</h3>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-2.5 text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Gross Expected</span>
-                <span className="font-semibold text-white tabular-nums">₹{totalGross.toLocaleString('en-IN')}</span>
+                <span className="text-stone-500">Gross Expected:</span>
+                <span className="font-semibold text-stone-900 tabular-nums">₹{totalGross.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex items-center justify-between text-accent-rose">
+                <span>Est. Freight (₹{estTransportPerKg}/kg):</span>
+                <span className="font-semibold tabular-nums">−₹{totalTransport.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-rose-400">Freight (₹{estTransportPerKg}/kg)</span>
-                <span className="font-semibold text-rose-400 tabular-nums">−₹{totalTransport.toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500">Mandi Brokerage / Cess</span>
-                <span className="font-semibold text-brand-400">₹0.00 (Direct)</span>
+                <span className="text-stone-500">Mandi Cess / Brokerage:</span>
+                <span className="font-semibold text-brand-700">₹0.00 (Direct)</span>
               </div>
 
-              <div className="pt-3 border-t border-white/8">
-                <p className="text-[9px] text-brand-400 font-semibold uppercase tracking-widest mb-1">Net per kg</p>
-                <p className="text-3xl font-bold text-amber-300 tabular-nums">
+              <div className="pt-3 border-t border-stone-100">
+                <span className="text-2xs text-stone-400 uppercase tracking-wider font-semibold block mb-0.5">
+                  Est. Net Take-Home
+                </span>
+                <div className="text-2xl font-bold text-brand-800 tabular-nums">
                   ₹{estNetPerKg.toFixed(2)}
-                  <span className="text-xs font-normal text-slate-400">/kg</span>
-                </p>
+                  <span className="text-xs font-normal text-stone-500">/kg</span>
+                </div>
               </div>
 
-              <div className="bg-white/8 rounded-lg p-3 text-center">
-                <p className="text-[10px] text-slate-400 mb-0.5">Total In-Hand Bank Credit</p>
-                <p className="text-xl font-bold text-white tabular-nums">₹{totalNet.toLocaleString('en-IN')}</p>
+              <div className="bg-stone-50 rounded-lg p-3 border border-stone-200/60 text-center">
+                <span className="text-2xs text-stone-500 block mb-0.5">Total In-Hand Bank Settlement</span>
+                <span className="text-lg font-bold text-stone-900 tabular-nums">₹{totalNet.toLocaleString('en-IN')}</span>
               </div>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-white/8">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 bg-amber-400 hover:bg-amber-300 text-gray-950 font-bold rounded-xl shadow-sm text-sm transition-colors duration-150 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>{isSubmitting ? 'Publishing Lot…' : 'Publish Lot on Network'}</span>
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-semibold rounded-md shadow-subtle text-xs transition-colors flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{isSubmitting ? 'Publishing...' : 'Publish Lot on Network'}</span>
+            </button>
           </div>
 
-          {/* Smart contract protection note */}
-          <div className="bg-white rounded-xl p-4 border border-stone-200 shadow-card">
-            <div className="flex items-center gap-2 mb-1.5">
-              <ShieldCheck className="w-4 h-4 text-brand-600 shrink-0" />
-              <p className="text-xs font-semibold text-gray-900">Smart Contract Protection</p>
+          <div className="bg-stone-50 rounded-lg p-3.5 border border-stone-200/60 text-xs text-stone-500 space-y-1">
+            <div className="flex items-center gap-1.5 font-semibold text-stone-800">
+              <ShieldCheck className="w-3.5 h-3.5 text-brand-700 shrink-0" />
+              <span>Escrow Protected Listing</span>
             </div>
-            <p className="text-[11px] text-stone-500 leading-relaxed">
-              Verified buyers in the Nashik-Pune cluster are notified instantly. You maintain full control to accept or reject any bid.
+            <p className="text-2xs leading-relaxed text-stone-500">
+              Verified buyers in the Nashik-Pune cluster will be notified instantly. You maintain full authority to accept or reject bids.
             </p>
           </div>
         </div>

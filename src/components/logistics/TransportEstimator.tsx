@@ -52,31 +52,29 @@ export const TransportEstimator: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-card border border-slate-200">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-2 rounded-xl bg-emerald-100 text-brand-700">
-          <Truck className="w-5 h-5" />
-        </div>
+    <div className="bg-white rounded-xl p-5 sm:p-6 shadow-card border border-stone-200/80">
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-stone-100">
+        <Truck className="w-4 h-4 text-stone-500" />
         <div>
-          <h3 className="font-bold text-slate-900 text-base sm:text-lg">
-            Smart Logistics & Freight Cost Estimator
+          <h3 className="font-semibold text-stone-900 text-sm sm:text-base">
+            Agri-Logistics Freight Estimator & Dispatch
           </h3>
-          <p className="text-xs text-slate-500">
-            Real-time rural freight matching to keep transport deductions minimal.
+          <p className="text-xs text-stone-500">
+            Transparent per-km vehicle matching to minimize transit deductions.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        {/* Destination Selector */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+        {/* Destination */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-            Select Destination Market / Buyer
+          <label className="block text-xs font-semibold text-stone-700 mb-1">
+            Destination Market / Hub
           </label>
           <select
             value={selectedDestination}
             onChange={handleDestinationChange}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-brand-500"
+            className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-xs sm:text-sm font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-700"
           >
             <optgroup label="Direct Institutional Buyers">
               {MOCK_BUYERS.map((b) => (
@@ -95,30 +93,43 @@ export const TransportEstimator: React.FC = () => {
           </select>
         </div>
 
-        {/* Quantity Input */}
-        <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-            Lot Quantity (kg)
-          </label>
-          <input
-            type="number"
-            min="100"
-            step="100"
-            value={quantityKg}
-            onChange={(e) => setQuantityKg(parseInt(e.target.value) || 500)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-brand-500"
-          />
+        {/* Quantity & Distance */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">
+              Quantity (kg)
+            </label>
+            <input
+              type="number"
+              step="50"
+              min="50"
+              value={quantityKg}
+              onChange={(e) => setQuantityKg(parseInt(e.target.value) || 0)}
+              className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-xs sm:text-sm font-semibold text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">
+              Distance (km)
+            </label>
+            <input
+              type="number"
+              value={distanceKm}
+              onChange={(e) => setDistanceKm(parseInt(e.target.value) || 0)}
+              className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-xs sm:text-sm font-semibold text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
+            />
+          </div>
         </div>
 
-        {/* Vehicle Match */}
+        {/* Vehicle Selection */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-            Recommended Vehicle
+          <label className="block text-xs font-semibold text-stone-700 mb-1">
+            Carrier Vehicle Type
           </label>
           <select
             value={selectedVehicle}
             onChange={(e) => setSelectedVehicle(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-brand-500"
+            className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-xs sm:text-sm font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-700"
           >
             {MOCK_VEHICLE_OPTIONS.map((v) => (
               <option key={v.id} value={v.vehicleType}>
@@ -129,48 +140,41 @@ export const TransportEstimator: React.FC = () => {
         </div>
       </div>
 
-      {/* Calculated Results Block */}
-      <div className="bg-slate-900 text-white rounded-2xl p-5 mb-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div>
-          <span className="text-[11px] text-slate-400 block uppercase font-bold">Route Distance</span>
-          <span className="text-xl font-black text-white">{distanceKm} km</span>
-          <span className="text-[10px] text-slate-400 block">From {farmer.village}</span>
+      {/* Real-time Calculation Result */}
+      <div className="bg-stone-50/80 rounded-lg p-4 border border-stone-200/70 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-4 text-xs">
+          <div>
+            <span className="text-2xs text-stone-400 font-medium uppercase block">Total Freight Quote</span>
+            <span className="text-lg font-bold text-accent-rose tabular-nums">₹{estimate.totalCost}</span>
+          </div>
+          <div className="h-7 w-px bg-stone-200 hidden sm:block" />
+          <div>
+            <span className="text-2xs text-stone-400 font-medium uppercase block">Freight Rate / kg</span>
+            <span className="text-base font-bold text-stone-900 tabular-nums">₹{estimate.costPerKg.toFixed(2)}/kg</span>
+          </div>
+          <div className="h-7 w-px bg-stone-200 hidden sm:block" />
+          <div>
+            <span className="text-2xs text-stone-400 font-medium uppercase block">Pickup Address</span>
+            <span className="text-xs font-semibold text-stone-800">
+              Farm Gate, {farmer.village}, {farmer.district}
+            </span>
+          </div>
         </div>
 
-        <div>
-          <span className="text-[11px] text-slate-400 block uppercase font-bold">Est. Transit Time</span>
-          <span className="text-xl font-black text-white">{estimate.transitHours} Hours</span>
-          <span className="text-[10px] text-emerald-400 block">Direct Farm Route</span>
-        </div>
-
-        <div>
-          <span className="text-[11px] text-rose-300 block uppercase font-bold">Total Freight Quote</span>
-          <span className="text-xl font-black text-rose-300">₹{estimate.totalCost.toLocaleString('en-IN')}</span>
-          <span className="text-[10px] text-slate-400 block">Incl. loading/unloading</span>
-        </div>
-
-        <div className="bg-emerald-950/80 rounded-xl p-2.5 border border-emerald-500/30">
-          <span className="text-[10px] text-emerald-300 block uppercase font-black">Cost Impact Per Kg</span>
-          <span className="text-2xl font-black text-emerald-400">₹{estimate.costPerKg.toFixed(2)}</span>
-          <span className="text-[10px] text-slate-300">Deduction from gross</span>
-        </div>
-      </div>
-
-      {/* Book Transport Action */}
-      <div className="flex items-center justify-between pt-2">
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          <span>Verified Local Agri-Drivers with GPS Tracking</span>
-        </div>
-
-        <button
-          onClick={handleBooking}
-          disabled={isBooked}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition active:scale-95 disabled:bg-slate-300 disabled:text-slate-600"
-        >
-          <Truck className="w-4 h-4" />
-          <span>{isBooked ? 'Transport Booked ✓' : 'Schedule Farm Pickup'}</span>
-        </button>
+        {isBooked ? (
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-700 bg-brand-50 px-3 py-1.5 rounded-md border border-brand-200">
+            <CheckCircle className="w-4 h-4" />
+            <span>Driver Assigned · Santosh Jadhav</span>
+          </div>
+        ) : (
+          <button
+            onClick={handleBooking}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-700 hover:bg-brand-800 text-white font-semibold text-xs rounded-md shadow-subtle transition-colors active:scale-95 shrink-0"
+          >
+            <span>Book Dispatch Vehicle</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
     </div>
   );

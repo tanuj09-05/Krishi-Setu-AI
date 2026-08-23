@@ -4,17 +4,14 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '../context/AppContext';
 import {
-  TrendingUp,
   Boxes,
   Users,
   Store,
-  Sparkles,
-  ShieldCheck,
-  PlusCircle,
+  Plus,
   Receipt,
-  Coins,
-  Activity,
-  ArrowUpRight,
+  ArrowRight,
+  TrendingUp,
+  TrendingDown,
 } from 'lucide-react';
 import { HeroRecommendationCard } from '../components/recommendation/HeroRecommendationCard';
 import { NetRealizationFormula } from '../components/recommendation/NetRealizationFormula';
@@ -90,79 +87,71 @@ export default function DashboardPage() {
     priceForecast7Days: [],
     breakdown: [],
     reasons: [
-      { type: 'positive' as const, text: 'Reliance Retail offers the highest Net Realization of ₹22.50/kg after transport.', impactScore: 95 },
+      { type: 'positive' as const, text: 'Reliance Retail offers the highest Net Realization of ₹22.50/kg after transport deductions.', impactScore: 95 },
       { type: 'positive' as const, text: 'Buyer offers 99.2% payment reliability with T+0 instant digital settlement.', impactScore: 90 },
     ],
     riskAnalysis: { spoilageRisk: 'Low', priceDropRisk: 'Moderate', paymentRisk: 'Minimal (Escrow Backed)' },
   };
 
   return (
-    <div className="space-y-7 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-4 border-b border-stone-200/80">
         <div>
-          <p className="text-xs font-medium text-brand-700 mb-1">
-            Welcome back, {farmer.name} · {farmer.village}, {farmer.district}
-          </p>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-            Market Intelligence Dashboard
+          <span className="text-2xs font-semibold text-brand-700 uppercase tracking-wider block mb-0.5">
+            {farmer.name} · {farmer.village}, {farmer.district}
+          </span>
+          <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+            Agricultural Market Intelligence
           </h1>
-          <p className="text-sm text-stone-500 mt-0.5">
-            Harvest timing, buyer linkages and net realization — optimized.
+          <p className="text-xs sm:text-sm text-stone-500 mt-0.5">
+            Live crop price discovery, freight-adjusted realization, and verified buyer linkages.
           </p>
         </div>
         <Link
           href="/lots/new"
-          className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors duration-150 active:scale-95 shrink-0"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold rounded-md shadow-subtle transition-colors shrink-0 active:scale-95"
         >
-          <PlusCircle className="w-4 h-4" />
-          <span>List Harvest</span>
+          <Plus className="w-3.5 h-3.5" />
+          <span>List Harvest Lot</span>
         </Link>
       </div>
 
-      {/* Stats Row */}
+      {/* Metric Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           label="Active Lots"
           value={activeLots.length}
-          icon={Boxes}
-          accent={activeLots.length > 0 ? 'green' : 'neutral'}
           trendLabel={activeLots.length > 0 ? `${activeLots.length} on network` : 'None listed'}
         />
         <StatCard
-          label="Trust Score"
+          label="Krishi Trust Score"
           value={farmer.trustScore}
           unit="%"
-          icon={ShieldCheck}
-          accent="green"
-          trendLabel="Tier 1 Verified"
           trend="up"
+          trendLabel="Tier 1 Farmer"
         />
         <StatCard
-          label="Total Realized"
+          label="Total Realized Payout"
           value={`₹${(totalEarnings / 1000).toFixed(0)}k`}
-          icon={Coins}
-          accent={totalEarnings > 0 ? 'green' : 'neutral'}
-          trendLabel={`${transactions.length} transactions`}
+          trendLabel={`${transactions.length} settlements`}
         />
         <StatCard
-          label="Pending Offers"
+          label="Pending Buyer Bids"
           value={pendingOffers}
-          icon={Activity}
-          accent={pendingOffers > 0 ? 'amber' : 'neutral'}
-          trendLabel={pendingOffers > 0 ? 'Awaiting response' : 'No offers'}
           trend={pendingOffers > 0 ? 'up' : undefined}
+          trendLabel={pendingOffers > 0 ? 'Awaiting response' : '0 bids pending'}
         />
       </div>
 
-      {/* AI Recommendation Hero */}
+      {/* Centerpiece: AI Recommendation Briefing */}
       <HeroRecommendationCard
         recommendation={topRec}
         onActionClick={() => handleOpenSendLot(buyersList[0] || MOCK_BUYERS[0])}
       />
 
-      {/* Net Realization Formula */}
+      {/* Net Realization Formula Breakdown */}
       <NetRealizationFormula
         sellingPrice={topRec.expectedPricePerKg}
         transportCost={topRec.transportCostPerKg}
@@ -172,12 +161,11 @@ export default function DashboardPage() {
         cropName={topRec.cropName}
       />
 
-      {/* Crop Market Snapshot */}
+      {/* Daily Crop Price Snapshot */}
       <div>
         <SectionHeader
           icon={Store}
-          iconAccent="green"
-          title="Today's Crop Market Snapshot"
+          title="Regional Mandi Modal Prices"
           viewAllHref="/markets"
           viewAllLabel="Compare all mandis"
         />
@@ -186,49 +174,52 @@ export default function DashboardPage() {
             <Link
               key={crop.id}
               href={`/markets?crop=${encodeURIComponent(crop.name)}`}
-              className="bg-white rounded-xl p-3.5 shadow-card border border-stone-200 hover:border-brand-300 hover:shadow-card-md transition-all duration-150 group block"
+              className="bg-white rounded-lg p-3 border border-stone-200/80 hover:border-stone-300 shadow-card transition-colors block group"
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xl">{crop.icon}</span>
-                <Badge
-                  variant={crop.priceTrend === 'rising' ? 'success' : crop.priceTrend === 'falling' ? 'danger' : 'neutral'}
-                  size="sm"
-                >
-                  {crop.priceTrend === 'rising' ? '↑' : crop.priceTrend === 'falling' ? '↓' : '–'}
-                </Badge>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-lg">{crop.icon}</span>
+                <span className={`text-2xs font-semibold px-1.5 py-0.2 rounded ${
+                  crop.priceTrend === 'rising'
+                    ? 'text-brand-800 bg-brand-50'
+                    : crop.priceTrend === 'falling'
+                    ? 'text-accent-rose bg-rose-50'
+                    : 'text-stone-600 bg-stone-100'
+                }`}>
+                  {crop.priceTrend === 'rising' ? '↑ Rising' : crop.priceTrend === 'falling' ? '↓ Falling' : '– Stable'}
+                </span>
               </div>
-              <p className="font-semibold text-xs text-gray-900 truncate">{crop.name}</p>
-              <p className="text-base font-bold text-gray-900 mt-0.5 tabular-nums">
+              <p className="font-semibold text-xs text-stone-900 truncate">{crop.name}</p>
+              <p className="text-sm font-bold text-stone-900 mt-0.5 tabular-nums">
                 ₹{crop.currentAvgPricePerKg.toFixed(1)}
-                <span className="text-xs font-normal text-stone-400">/kg</span>
+                <span className="text-2xs font-normal text-stone-400">/kg</span>
               </p>
-              <p className="text-[10px] text-stone-400 mt-0.5">{crop.localName}</p>
+              <p className="text-2xs text-stone-400 mt-0.5">{crop.localName}</p>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* Active Lots */}
+      {/* Active Lots & Incoming Offers */}
       <div>
         <SectionHeader
           icon={Boxes}
-          iconAccent="amber"
-          title="Your Active Lots & Incoming Bids"
+          title="My Harvest Lots & Bids"
+          count={totalLotsCount}
           viewAllHref="/lots"
-          viewAllLabel={`View all ${totalLotsCount}`}
+          viewAllLabel="All lots"
         />
         {lots.length === 0 ? (
           <EmptyState
             icon={Boxes}
             title="No lots listed yet"
-            description="Create your first digital lot to start receiving buyer offers."
+            description="Create your first digital lot to receive direct bids from corporate buyers."
             action={
               <Link
                 href="/lots/new"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-700 text-white rounded-lg text-xs font-semibold hover:bg-brand-800 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-700 text-white rounded-md text-xs font-semibold hover:bg-brand-800 transition-colors"
               >
-                <PlusCircle className="w-3.5 h-3.5" />
-                Create Lot
+                <Plus className="w-3.5 h-3.5" />
+                <span>Create Lot</span>
               </Link>
             }
           />
@@ -241,14 +232,14 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Verified Buyers */}
+      {/* Verified Buyers Demand Board */}
       <div>
         <SectionHeader
           icon={Users}
-          iconAccent="green"
           title="Verified Institutional Buyers"
+          count={buyersList.length}
           viewAllHref="/buyers"
-          viewAllLabel="Explore all buyers"
+          viewAllLabel="All buyers"
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {buyersList.slice(0, 3).map((buyer) => (
@@ -261,29 +252,29 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Transactions */}
+      {/* Recent Escrow Settlements */}
       {transactions.length > 0 && (
         <div>
           <SectionHeader
             icon={Receipt}
-            iconAccent="indigo"
             title="Recent Escrow Settlements"
+            count={transactions.length}
             viewAllHref="/transactions"
-            viewAllLabel="View all transactions"
+            viewAllLabel="All transactions"
           />
-          <div className="bg-white rounded-xl border border-stone-200 shadow-card divide-y divide-stone-100">
+          <div className="bg-white rounded-xl border border-stone-200/80 shadow-card divide-y divide-stone-100">
             {transactions.slice(0, 3).map((txn) => (
-              <div key={txn.id} className="px-5 py-4 flex items-center justify-between gap-4 hover:bg-stone-50 transition-colors">
+              <div key={txn.id} className="px-4 py-3 flex items-center justify-between gap-4 hover:bg-stone-50/60 transition-colors">
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm text-gray-900 truncate">
+                  <p className="font-semibold text-xs sm:text-sm text-stone-900 truncate">
                     {txn.cropName} · {txn.quantityKg.toLocaleString('en-IN')} kg
                   </p>
-                  <p className="text-xs text-stone-500 mt-0.5">
+                  <p className="text-2xs text-stone-500 mt-0.5">
                     {txn.buyerName} · <span className="font-mono text-stone-400">{txn.lotNumber}</span>
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-base font-bold text-brand-800 tabular-nums">
+                  <p className="text-sm sm:text-base font-bold text-brand-800 tabular-nums">
                     ₹{txn.netRealizationAmount.toLocaleString('en-IN')}
                   </p>
                   <Badge variant={txn.paymentStatus === 'completed' ? 'success' : 'warning'} size="sm">

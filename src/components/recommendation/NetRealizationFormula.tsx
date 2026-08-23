@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Calculator, Minus } from 'lucide-react';
-import { Badge } from '../ui/Badge';
+import { Calculator, Minus, Equal, ArrowRight } from 'lucide-react';
 
 interface NetRealizationFormulaProps {
   sellingPrice?: number;
@@ -22,91 +21,82 @@ export const NetRealizationFormula: React.FC<NetRealizationFormulaProps> = ({
   cropName = 'Tomato',
 }) => {
   return (
-    <div className="bg-[#0d1810] text-white rounded-2xl p-5 border border-white/10 shadow-card">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-white/8">
-        <div className="flex items-center gap-2.5">
-          <div className="p-1.5 rounded-lg bg-brand-700/30 text-brand-400 border border-brand-600/30">
-            <Calculator className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-              The Net Realization Core Formula
-              <span className="text-[9px] bg-brand-600 text-white font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Key Differentiator
-              </span>
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Why KrishiSetu AI looks beyond headline mandi prices to calculate your actual in-pocket profit.
-            </p>
-          </div>
+    <div className="bg-white rounded-xl border border-stone-200/80 p-5 shadow-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-stone-100">
+        <div className="flex items-center gap-2">
+          <Calculator className="w-4 h-4 text-stone-500" />
+          <h3 className="font-semibold text-xs sm:text-sm text-stone-900">
+            Net Realization Breakdown
+          </h3>
+          <span className="text-2xs text-stone-400 font-medium hidden sm:inline">
+            · True In-Pocket Take-Home vs. Headline Mandi Rates
+          </span>
         </div>
+        <span className="text-2xs font-semibold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded">
+          Direct vs Mandi Formula
+        </span>
       </div>
 
       {/* Formula Blocks */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-center text-center">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 items-center text-center">
         {/* Step 1: Selling Price */}
-        <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/8">
-          <span className="text-[10px] text-brand-400 font-semibold uppercase tracking-wider block">
+        <div className="bg-stone-50/70 rounded-lg p-3 border border-stone-200/60">
+          <span className="text-2xs text-stone-500 font-medium uppercase tracking-wider block">
             Offered Price
           </span>
-          <div className="text-xl font-bold text-white mt-1 tabular-nums">
+          <div className="text-base sm:text-lg font-bold text-stone-900 mt-0.5 tabular-nums">
             ₹{sellingPrice.toFixed(2)}
-            <span className="text-xs font-normal text-slate-400">/kg</span>
+            <span className="text-2xs font-normal text-stone-400">/kg</span>
           </div>
-          <span className="text-[10px] text-slate-500">Buyer / Mandi quote</span>
+          <span className="text-2xs text-stone-400">Buyer quote</span>
         </div>
 
         {/* Minus Sign */}
-        <div className="hidden md:flex justify-center text-amber-400">
-          <Minus className="w-5 h-5 stroke-[2.5]" />
+        <div className="hidden md:flex justify-center text-stone-400">
+          <Minus className="w-4 h-4" />
         </div>
 
         {/* Step 2: Transport Cost */}
-        <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/8">
-          <span className="text-[10px] text-rose-400 font-semibold uppercase tracking-wider block">
-            Transport Cost
+        <div className="bg-stone-50/70 rounded-lg p-3 border border-stone-200/60">
+          <span className="text-2xs text-stone-500 font-medium uppercase tracking-wider block">
+            Transport Freight
           </span>
-          <div className="text-xl font-bold text-rose-400 mt-1 tabular-nums">
+          <div className="text-base sm:text-lg font-bold text-accent-rose mt-0.5 tabular-nums">
             −₹{transportCost.toFixed(2)}
-            <span className="text-xs font-normal text-slate-400">/kg</span>
+            <span className="text-2xs font-normal text-stone-400">/kg</span>
           </div>
-          <span className="text-[10px] text-slate-500">Distance & freight</span>
+          <span className="text-2xs text-stone-400">Route logistics</span>
         </div>
 
         {/* Minus Sign */}
-        <div className="hidden md:flex justify-center text-amber-400">
-          <Minus className="w-5 h-5 stroke-[2.5]" />
+        <div className="hidden md:flex justify-center text-stone-400">
+          <Minus className="w-4 h-4" />
         </div>
 
         {/* Step 3: Cess & Storage */}
-        <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/8">
-          <span className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider block">
+        <div className="bg-stone-50/70 rounded-lg p-3 border border-stone-200/60">
+          <span className="text-2xs text-stone-500 font-medium uppercase tracking-wider block">
             Cess & Handling
           </span>
-          <div className="text-xl font-bold text-amber-400 mt-1 tabular-nums">
+          <div className="text-base sm:text-lg font-bold text-stone-800 mt-0.5 tabular-nums">
             −₹{(storageCost + mandiCess).toFixed(2)}
-            <span className="text-xs font-normal text-slate-400">/kg</span>
+            <span className="text-2xs font-normal text-stone-400">/kg</span>
           </div>
-          <span className="text-[10px] text-slate-500">Mandi fees & weighment</span>
+          <span className="text-2xs text-stone-400">0% on direct hub</span>
         </div>
       </div>
 
       {/* Result Callout */}
-      <div className="mt-4 pt-3 border-t border-white/8 flex flex-col sm:flex-row items-center justify-between gap-3 bg-brand-900/40 rounded-xl p-3.5 border border-brand-700/30">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-brand-700 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-            =
-          </div>
-          <div className="text-left">
-            <div className="text-[10px] text-brand-300 font-medium">Actual Farmer Take-Home Payout</div>
-            <div className="text-sm sm:text-base font-semibold text-white">
-              Estimated Net Realization: <span className="text-amber-300 font-bold text-lg tabular-nums">₹{netRealization.toFixed(2)}/kg</span>
-            </div>
-          </div>
+      <div className="mt-3.5 pt-3.5 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-brand-50/50 rounded-lg px-4 py-2.5 border border-brand-200/60">
+        <div className="flex items-center gap-2">
+          <Equal className="w-4 h-4 text-brand-700 shrink-0" />
+          <span className="text-xs text-stone-700">
+            Net In-Pocket Payout: <strong className="text-brand-900 font-bold tabular-nums">₹{netRealization.toFixed(2)}/kg</strong>
+          </span>
         </div>
 
-        <div className="text-xs bg-black/40 px-3.5 py-2 rounded-lg text-slate-200 border border-white/10 text-center sm:text-right">
-          For <strong>500 kg {cropName}</strong> lot = <strong className="text-brand-400 text-sm tabular-nums">₹{(netRealization * 500).toLocaleString('en-IN')}</strong> Net Revenue
+        <div className="text-2xs text-stone-500">
+          For a 500 kg {cropName} lot = <strong className="text-brand-800 font-semibold tabular-nums">₹{(netRealization * 500).toLocaleString('en-IN')}</strong> direct credit
         </div>
       </div>
     </div>

@@ -9,8 +9,8 @@ import { ToastContainer } from '../components/ui/ToastContainer';
 import { VoiceAssistantTrigger } from '../components/voice/VoiceAssistantTrigger';
 
 export const metadata: Metadata = {
-  title: 'KrishiSetu AI — Smart Market Linkages & Net Realization',
-  description: 'AI-powered market intelligence and transaction enablement platform maximizing net profit for Indian farmers.',
+  title: 'KrishiSetu AI — Agricultural Market Intelligence',
+  description: 'Precision market intelligence and direct buyer linkages for Indian agriculture.',
 };
 
 export default function RootLayout({
@@ -20,14 +20,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-[#f7f8f5] flex flex-col text-gray-900 antialiased">
+      <body className="min-h-screen bg-stone-50 text-stone-900 antialiased flex flex-col">
         <AuthProvider>
           <AppProvider>
             <Navbar />
             <div className="flex-1 flex w-full">
               <Sidebar />
               <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-10 overflow-x-hidden">
-                <div className="max-w-6xl mx-auto">
+                <div className="max-w-5xl mx-auto">
                   {children}
                 </div>
               </main>

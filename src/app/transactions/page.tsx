@@ -14,17 +14,17 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
-        eyebrow="Protected Settlement Engine"
+        eyebrow="Protected Settlements"
         eyebrowIcon={Receipt}
         title="Payment & Escrow Transactions"
         description="Full transparency on gross deal values, logistics deductions, and direct bank settlement receipts."
         action={
-          <div className="bg-brand-900 text-white px-5 py-3 rounded-xl border border-brand-700/50 text-right shrink-0">
-            <p className="text-[9px] text-brand-400 font-semibold uppercase tracking-widest">Total Net Realized</p>
-            <p className="text-xl font-bold text-white tabular-nums mt-0.5">
+          <div className="bg-white border border-stone-200/80 px-4 py-2.5 rounded-lg text-right shrink-0 shadow-subtle">
+            <span className="text-2xs text-stone-500 font-medium uppercase tracking-wider block">Total Net Realized Payout</span>
+            <span className="text-lg sm:text-xl font-bold text-brand-800 tabular-nums block mt-0.5">
               ₹{totalEarnings.toLocaleString('en-IN')}
-            </p>
-            <p className="text-[10px] text-slate-500 mt-0.5">A/C **4921</p>
+            </span>
+            <span className="text-2xs text-stone-400">Direct DBT to A/C **4921</span>
           </div>
         }
       />
@@ -33,111 +33,98 @@ export default function TransactionsPage() {
         <EmptyState
           icon={Receipt}
           title="No transactions yet"
-          description="Your completed deal settlements will appear here with full escrow timelines."
+          description="Your completed deal settlements and escrow status will appear here."
         />
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {transactions.map((txn) => {
             const isCompleted = txn.paymentStatus === 'completed';
 
             return (
               <div
                 key={txn.id}
-                className="bg-white rounded-2xl border border-stone-200 shadow-card overflow-hidden"
+                className="bg-white rounded-xl border border-stone-200/80 shadow-card overflow-hidden"
               >
-                {/* Top row */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 py-4 border-b border-stone-100">
+                {/* Header row */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 border-b border-stone-100">
                   <div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="font-mono text-[10px] text-stone-400 bg-stone-100 px-2 py-0.5 rounded-md">{txn.lotNumber}</span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono text-2xs text-stone-500 bg-stone-100 px-2 py-0.5 rounded">{txn.lotNumber}</span>
                       <Badge variant={isCompleted ? 'success' : 'warning'} size="sm" dot>
-                        {isCompleted ? 'Settled' : 'In Escrow'}
+                        {isCompleted ? 'Settled to Bank' : 'In Escrow'}
                       </Badge>
                     </div>
-                    <h3 className="text-base font-bold text-gray-900">
+                    <h3 className="text-sm sm:text-base font-bold text-stone-900">
                       {txn.cropName}
-                      <span className="font-normal text-stone-400 text-sm ml-1.5">({txn.quantityKg.toLocaleString('en-IN')} kg)</span>
+                      <span className="font-normal text-stone-500 text-xs ml-1.5">({txn.quantityKg.toLocaleString('en-IN')} kg)</span>
                     </h3>
-                    <p className="text-xs text-stone-500 mt-0.5">
-                      Buyer: <strong className="text-gray-700">{txn.buyerName}</strong> · {txn.createdAt}
+                    <p className="text-2xs text-stone-500 mt-0.5">
+                      Buyer: <strong className="text-stone-700">{txn.buyerName}</strong> · {txn.createdAt}
                     </p>
                   </div>
                   <div className="sm:text-right">
-                    <p className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider">Agreed Price</p>
-                    <p className="text-lg font-bold text-gray-900 tabular-nums mt-0.5">₹{txn.agreedPricePerKg.toFixed(2)}/kg</p>
+                    <span className="text-2xs text-stone-400 font-medium uppercase block">Agreed Deal Price</span>
+                    <span className="text-base font-bold text-stone-900 tabular-nums block mt-0.5">₹{txn.agreedPricePerKg.toFixed(2)}/kg</span>
                     {txn.utrNumber && (
-                      <p className="text-[10px] font-mono text-brand-700 mt-0.5">UTR: {txn.utrNumber}</p>
+                      <span className="text-2xs font-mono text-brand-700 mt-0.5 block">UTR: {txn.utrNumber}</span>
                     )}
                   </div>
                 </div>
 
-                {/* Breakdown tiles */}
-                <div className="grid grid-cols-2 sm:grid-cols-4">
-                  {[
-                    {
-                      label: 'Gross Value',
-                      value: `₹${txn.grossAmount.toLocaleString('en-IN')}`,
-                      sub: `${txn.quantityKg} kg × ₹${txn.agreedPricePerKg}`,
-                      color: 'text-gray-900',
-                    },
-                    {
-                      label: 'Transport',
-                      value: `−₹${txn.logisticsCost.toLocaleString('en-IN')}`,
-                      sub: 'Direct carrier',
-                      color: 'text-rose-500',
-                    },
-                    {
-                      label: 'Mandi Cess',
-                      value: `−₹${txn.mandiFeesOrPlatformDeduction.toLocaleString('en-IN')}`,
-                      sub: '0% direct buyer',
-                      color: 'text-amber-600',
-                    },
-                    {
-                      label: 'Net Realization',
-                      value: `₹${txn.netRealizationAmount.toLocaleString('en-IN')}`,
-                      sub: `₹${txn.netRealizationPerKg.toFixed(2)}/kg`,
-                      color: 'text-brand-800',
-                      highlight: true,
-                    },
-                  ].map((box, i) => (
-                    <div
-                      key={i}
-                      className={`px-4 py-3.5 border-r last:border-r-0 border-t sm:border-t-0 border-stone-100 ${
-                        box.highlight ? 'bg-brand-50' : ''
-                      }`}
-                    >
-                      <p className="text-[9px] font-semibold text-stone-400 uppercase tracking-wider mb-1">{box.label}</p>
-                      <p className={`text-sm font-bold tabular-nums ${box.color}`}>{box.value}</p>
-                      <p className="text-[10px] text-stone-400 mt-0.5">{box.sub}</p>
-                    </div>
-                  ))}
+                {/* 4-Column Breakdown Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 bg-stone-50/40 text-xs">
+                  <div className="p-3 border-r border-stone-100">
+                    <span className="text-2xs text-stone-400 font-medium uppercase block mb-0.5">1. Gross Value</span>
+                    <span className="text-sm font-bold text-stone-900 tabular-nums">₹{txn.grossAmount.toLocaleString('en-IN')}</span>
+                    <span className="text-2xs text-stone-400 block mt-0.5">{txn.quantityKg} kg × ₹{txn.agreedPricePerKg}</span>
+                  </div>
+
+                  <div className="p-3 border-r border-stone-100">
+                    <span className="text-2xs text-stone-400 font-medium uppercase block mb-0.5">2. Transport Freight</span>
+                    <span className="text-sm font-bold text-accent-rose tabular-nums">−₹{txn.logisticsCost.toLocaleString('en-IN')}</span>
+                    <span className="text-2xs text-stone-400 block mt-0.5">Direct carrier rate</span>
+                  </div>
+
+                  <div className="p-3 border-r border-stone-100">
+                    <span className="text-2xs text-stone-400 font-medium uppercase block mb-0.5">3. Mandi Cess / Fees</span>
+                    <span className="text-sm font-bold text-stone-700 tabular-nums">−₹{txn.mandiFeesOrPlatformDeduction.toLocaleString('en-IN')}</span>
+                    <span className="text-2xs text-brand-700 block mt-0.5">0% direct buyer</span>
+                  </div>
+
+                  <div className="p-3 bg-brand-50/60">
+                    <span className="text-2xs text-brand-800 font-semibold uppercase block mb-0.5">4. Net Realization</span>
+                    <span className="text-sm font-bold text-brand-900 tabular-nums">₹{txn.netRealizationAmount.toLocaleString('en-IN')}</span>
+                    <span className="text-2xs text-brand-700 font-semibold block mt-0.5">₹{txn.netRealizationPerKg.toFixed(2)}/kg in-hand</span>
+                  </div>
                 </div>
 
-                {/* Timeline */}
-                <div className="px-5 py-4 bg-stone-50/50 border-t border-stone-100">
-                  <p className="text-[9px] font-semibold text-stone-400 uppercase tracking-wider mb-3">Settlement Timeline</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {/* Milestone Timeline */}
+                <div className="px-5 py-3 border-t border-stone-100 bg-stone-50/20">
+                  <span className="text-2xs font-semibold text-stone-400 uppercase tracking-wider block mb-2">
+                    Settlement Milestone Progress
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                     {txn.timeline.map((step, idx) => (
                       <div
                         key={idx}
-                        className={`p-3 rounded-lg border text-xs ${
+                        className={`p-2 rounded-md border ${
                           step.completed
-                            ? 'bg-white border-brand-200'
-                            : 'bg-stone-50 border-stone-200'
+                            ? 'bg-white border-stone-200 text-stone-900'
+                            : 'bg-stone-50 border-stone-200/50 text-stone-400'
                         }`}
                       >
-                        <div className="flex items-center gap-1.5 mb-1">
+                        <div className="flex items-center gap-1 mb-0.5">
                           <CheckCircle2
-                            className={`w-3.5 h-3.5 shrink-0 ${
-                              step.completed ? 'text-brand-600' : 'text-stone-300'
+                            className={`w-3 h-3 shrink-0 ${
+                              step.completed ? 'text-brand-700' : 'text-stone-300'
                             }`}
                           />
-                          <span className={`font-semibold text-[10px] ${step.completed ? 'text-gray-900' : 'text-stone-400'}`}>
+                          <span className={`font-semibold text-2xs ${step.completed ? 'text-stone-900' : 'text-stone-400'}`}>
                             {step.step}
                           </span>
                         </div>
-                        <p className="text-[10px] text-stone-500 leading-snug">{step.description}</p>
-                        <p className="text-[9px] text-stone-400 mt-1">{step.date}</p>
+                        <p className="text-2xs text-stone-500 leading-tight truncate">{step.description}</p>
+                        <span className="text-2xs text-stone-400 mt-0.5 block">{step.date}</span>
                       </div>
                     ))}
                   </div>

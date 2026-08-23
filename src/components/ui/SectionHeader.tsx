@@ -4,43 +4,42 @@ import { LucideIcon, ArrowRight } from 'lucide-react';
 
 interface SectionHeaderProps {
   icon?: LucideIcon;
-  iconAccent?: 'green' | 'amber' | 'blue' | 'purple' | 'indigo';
+  iconAccent?: 'green' | 'amber' | 'blue' | 'neutral' | 'indigo';
   title: string;
+  count?: number;
   viewAllHref?: string;
   viewAllLabel?: string;
   className?: string;
 }
 
-const iconAccentMap = {
-  green:  'bg-brand-100 text-brand-700',
-  amber:  'bg-amber-100 text-amber-700',
-  blue:   'bg-sky-100 text-sky-700',
-  purple: 'bg-purple-100 text-purple-700',
-  indigo: 'bg-indigo-100 text-indigo-700',
-};
-
 export const SectionHeader: React.FC<SectionHeaderProps> = ({
   icon: Icon,
-  iconAccent = 'green',
   title,
+  count,
   viewAllHref,
   viewAllLabel = 'View all',
   className = '',
 }) => {
   return (
-    <div className={`flex items-center justify-between mb-4 ${className}`}>
-      <div className="flex items-center gap-2.5">
+    <div className={`flex items-center justify-between gap-4 mb-3.5 ${className}`}>
+      <div className="flex items-center gap-2 min-w-0">
         {Icon && (
-          <span className={`p-1.5 rounded-lg ${iconAccentMap[iconAccent]}`}>
-            <Icon className="w-3.5 h-3.5" />
+          <Icon className="w-4 h-4 text-stone-500 shrink-0" />
+        )}
+        <h2 className="text-sm sm:text-base font-semibold text-stone-900 tracking-tight">
+          {title}
+        </h2>
+        {count !== undefined && (
+          <span className="text-2xs font-semibold text-stone-500 bg-stone-100 border border-stone-200 px-1.5 py-0.5 rounded">
+            {count}
           </span>
         )}
-        <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
       </div>
+
       {viewAllHref && (
         <Link
           href={viewAllHref}
-          className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-800 transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-800 transition-colors shrink-0"
         >
           <span>{viewAllLabel}</span>
           <ArrowRight className="w-3 h-3" />
