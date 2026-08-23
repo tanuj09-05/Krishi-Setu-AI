@@ -61,20 +61,24 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
         }
       }
       
-      const errorData = await res.json().catch(() => null);
-      if (errorData) {
-        throw { status: res.status, data: errorData };
-      }
-      return null;
+      const errorData = await res.json().catch(() => ({
+        detail: `Server returned status ${res.status} (${res.statusText || 'Error'}). If your backend is waking up, please wait a few seconds and try again.`,
+      }));
+      throw { status: res.status, data: errorData };
     }
 
     return await res.json();
   } catch (error: any) {
-    if (error && error.status) {
+    if (error && error.status !== undefined) {
       throw error;
     }
-    console.warn(`Could not reach Django API at ${url}. Using local fallback.`, error);
-    return null;
+    console.warn(`Could not reach Django API at ${url}.`, error);
+    throw {
+      status: 0,
+      data: {
+        detail: error?.message || 'Unable to connect to backend server. Please verify network connection or CORS settings.',
+      },
+    };
   }
 }
 

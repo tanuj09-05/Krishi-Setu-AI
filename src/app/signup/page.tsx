@@ -76,15 +76,32 @@ export default function SignupPage() {
         setErrorMsg('Registration failed. Please check your details and try again.');
       }
     } catch (err: any) {
-      if (err?.data) {
-        if (err.data.email) setErrorMsg(Array.isArray(err.data.email) ? err.data.email[0] : String(err.data.email));
-        else if (err.data.phone_number) setErrorMsg(Array.isArray(err.data.phone_number) ? err.data.phone_number[0] : String(err.data.phone_number));
-        else if (err.data.password) setErrorMsg(Array.isArray(err.data.password) ? err.data.password[0] : String(err.data.password));
-        else if (typeof err.data === 'string') setErrorMsg(err.data);
-        else if (err.data.non_field_errors) setErrorMsg(err.data.non_field_errors[0]);
-        else setErrorMsg('Registration error. Please check your information.');
+      const data = err?.data !== undefined ? err.data : err;
+      if (typeof data === 'string') {
+        setErrorMsg(data);
+      } else if (data?.email) {
+        setErrorMsg(Array.isArray(data.email) ? data.email[0] : String(data.email));
+      } else if (data?.phone_number) {
+        setErrorMsg(Array.isArray(data.phone_number) ? data.phone_number[0] : String(data.phone_number));
+      } else if (data?.password) {
+        setErrorMsg(Array.isArray(data.password) ? data.password[0] : String(data.password));
+      } else if (data?.confirm_password) {
+        setErrorMsg(Array.isArray(data.confirm_password) ? data.confirm_password[0] : String(data.confirm_password));
+      } else if (data?.non_field_errors) {
+        setErrorMsg(Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : String(data.non_field_errors));
+      } else if (data?.detail) {
+        setErrorMsg(String(data.detail));
+      } else if (typeof data === 'object' && data !== null) {
+        const firstKey = Object.keys(data)[0];
+        if (firstKey) {
+          const val = data[firstKey];
+          const msg = Array.isArray(val) ? val[0] : String(val);
+          setErrorMsg(`${firstKey.replace(/_/g, ' ')}: ${msg}`);
+        } else {
+          setErrorMsg('Registration error. Please check your information.');
+        }
       } else {
-        setErrorMsg('Could not connect to server. Please try again.');
+        setErrorMsg(err?.message || 'Could not connect to server. Please try again.');
       }
     } finally {
       setIsLoading(false);

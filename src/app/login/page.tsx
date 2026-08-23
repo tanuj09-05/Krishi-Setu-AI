@@ -54,13 +54,21 @@ export default function LoginPage() {
         setErrorMsg('Invalid email or password. Please try again.');
       }
     } catch (err: any) {
-      if (err?.data) {
-        if (typeof err.data === 'string') setErrorMsg(err.data);
-        else if (err.data.non_field_errors) setErrorMsg(err.data.non_field_errors[0]);
-        else if (err.data.detail) setErrorMsg(err.data.detail);
-        else setErrorMsg('Login failed. Please verify your credentials.');
+      const data = err?.data !== undefined ? err.data : err;
+      if (typeof data === 'string') {
+        setErrorMsg(data);
+      } else if (data?.non_field_errors) {
+        setErrorMsg(Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : String(data.non_field_errors));
+      } else if (data?.detail) {
+        setErrorMsg(String(data.detail));
+      } else if (data?.email) {
+        setErrorMsg(Array.isArray(data.email) ? data.email[0] : String(data.email));
+      } else if (data?.phone_number) {
+        setErrorMsg(Array.isArray(data.phone_number) ? data.phone_number[0] : String(data.phone_number));
+      } else if (data?.password) {
+        setErrorMsg(Array.isArray(data.password) ? data.password[0] : String(data.password));
       } else {
-        setErrorMsg('Could not connect to server. Please try again.');
+        setErrorMsg(err?.message || 'Login failed. Please verify your credentials.');
       }
     } finally {
       setIsLoading(false);
