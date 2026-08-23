@@ -7,7 +7,7 @@ import { useAuth, UserRoleType } from '../../context/AuthContext';
 import {
   Sprout,
   Globe,
-  Plus,
+  ArrowUpRight,
   UserCheck,
   Building2,
   Briefcase,
@@ -29,7 +29,6 @@ export const Navbar: React.FC = () => {
   const roleRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (roleRef.current && !roleRef.current.contains(e.target as Node)) {
@@ -54,7 +53,7 @@ export const Navbar: React.FC = () => {
     ? 'बोलून विचारा'
     : language.toLowerCase().includes('hindi')
     ? 'बोलकर पूछें'
-    : 'Ask AI';
+    : 'Ask Advice';
 
   const languages = [
     { id: 'English', label: 'English' },
@@ -77,7 +76,6 @@ export const Navbar: React.FC = () => {
               </div>
               <span className="text-sm font-bold text-stone-900 tracking-tight">
                 Krishi<span className="text-brand-700">Setu</span>
-                <span className="ml-1 text-[10px] font-semibold text-stone-500 bg-stone-100 border border-stone-200 px-1 py-0.2 rounded">AI</span>
               </span>
             </Link>
 
@@ -95,16 +93,14 @@ export const Navbar: React.FC = () => {
                 <span className="hidden sm:inline">{voiceBtnLabel}</span>
               </button>
 
-              {/* Create Lot (Farmer only) */}
-              {currentRole === 'FARMER' && (
-                <Link
-                  href="/lots/new"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold rounded-md shadow-subtle transition-colors active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>List Harvest</span>
-                </Link>
-              )}
+              {/* Primary "Sell Crop" Action */}
+              <Link
+                href="/sell"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold rounded-md shadow-subtle transition-colors active:scale-95"
+              >
+                <span>Sell Crop</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
 
               {/* Language selector */}
               <div className="relative" ref={langRef}>
@@ -156,7 +152,7 @@ export const Navbar: React.FC = () => {
                 {isRoleDropdownOpen && (
                   <div className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-menu border border-stone-200 py-1 z-50 animate-slide-up">
                     <div className="px-3 py-1.5 border-b border-stone-100 mb-0.5">
-                      <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">Demo User Profile</p>
+                      <p className="text-2xs font-semibold text-stone-400 uppercase tracking-wider">Demo User Profile</p>
                     </div>
                     {rolesList.map((r) => {
                       const Icon = r.icon;
@@ -176,7 +172,7 @@ export const Navbar: React.FC = () => {
                             <p className={`text-xs font-semibold ${isSelected ? 'text-brand-800' : 'text-stone-800'}`}>
                               {r.label}
                             </p>
-                            <p className="text-[10px] text-stone-400 truncate">{r.subtitle}</p>
+                            <p className="text-2xs text-stone-400 truncate">{r.subtitle}</p>
                           </div>
                           {isSelected && <Check className="w-3.5 h-3.5 text-brand-600 shrink-0" />}
                         </button>

@@ -3,24 +3,23 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Store, Sparkles, Boxes, Users, UserCheck2 } from 'lucide-react';
+import { Home, Sprout, ArrowUpRight, TrendingUp, UserCheck2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const MobileBottomNav: React.FC = () => {
   const pathname = usePathname();
   const { lots } = useApp();
 
-  const activeLots = lots.filter(
+  const activeCrops = lots.filter(
     (l) => l.status === 'active_listed' || l.status === 'offer_received'
   ).length;
 
   const items = [
-    { name: 'Dashboard', href: '/',               icon: LayoutDashboard },
-    { name: 'Markets',   href: '/markets',         icon: Store },
-    { name: 'AI Forecast', href: '/recommendations', icon: Sparkles },
-    { name: 'Buyers',    href: '/buyers',          icon: Users },
-    { name: 'My Lots',   href: '/lots',            icon: Boxes, badge: activeLots > 0 ? activeLots : null },
-    { name: 'Profile',   href: '/profile',         icon: UserCheck2 },
+    { name: 'Home',     href: '/',       icon: Home },
+    { name: 'My Crops', href: '/crops',   icon: Sprout, badge: activeCrops > 0 ? activeCrops : null },
+    { name: 'Sell',     href: '/sell',    icon: ArrowUpRight, isSell: true },
+    { name: 'Market',   href: '/market',  icon: TrendingUp },
+    { name: 'Profile',  href: '/profile', icon: UserCheck2 },
   ];
 
   return (
@@ -30,7 +29,7 @@ export const MobileBottomNav: React.FC = () => {
     >
       <div className="flex items-center justify-around px-1 py-1">
         {items.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href === '/crops' && pathname.startsWith('/lots')) || (item.href === '/market' && pathname.startsWith('/markets'));
           const Icon = item.icon;
 
           return (
@@ -40,6 +39,8 @@ export const MobileBottomNav: React.FC = () => {
               className={`flex flex-col items-center justify-center py-1.5 px-2 rounded-md transition-colors relative min-w-0 flex-1 ${
                 isActive
                   ? 'text-brand-700 font-semibold'
+                  : item.isSell
+                  ? 'text-brand-800 font-semibold'
                   : 'text-stone-500 hover:text-stone-900'
               }`}
               aria-current={isActive ? 'page' : undefined}
@@ -52,7 +53,7 @@ export const MobileBottomNav: React.FC = () => {
                   </span>
                 )}
               </div>
-              <span className="text-[10px] mt-1 truncate">
+              <span className="text-2xs mt-0.5 truncate">
                 {item.name}
               </span>
             </Link>
