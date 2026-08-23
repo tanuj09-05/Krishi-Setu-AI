@@ -14,12 +14,11 @@ import {
   Truck,
   Receipt,
   UserCheck2,
-  TrendingUp,
   ShieldCheck,
   MapPin,
   Building,
   Briefcase,
-  FileCheck,
+  ShieldAlert,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -31,241 +30,114 @@ export const Sidebar: React.FC = () => {
     (l) => l.status === 'active_listed' || l.status === 'offer_received'
   ).length;
 
-  // Role-Aware Navigation Configuration
-  let navItems = [
-    {
-      name: 'Farmer Dashboard',
-      href: '/',
-      icon: LayoutDashboard,
-      badge: null,
-    },
-    {
-      name: 'Market Intelligence',
-      href: '/markets',
-      icon: Store,
-      badge: 'Live',
-    },
-    {
-      name: 'AI Recommendations',
-      href: '/recommendations',
-      icon: Sparkles,
-      badge: '91% Match',
-      highlight: true,
-    },
-    {
-      name: 'Verified Buyers',
-      href: '/buyers',
-      icon: Users,
-      badge: '5 Active',
-    },
-    {
-      name: 'My Digital Lots',
-      href: '/lots',
-      icon: Boxes,
-      badge: activeLotsCount > 0 ? `${activeLotsCount}` : null,
-    },
-    {
-      name: 'Logistics & Rates',
-      href: '/logistics',
-      icon: Truck,
-      badge: null,
-    },
-    {
-      name: 'Transactions & Escrow',
-      href: '/transactions',
-      icon: Receipt,
-      badge: null,
-    },
-    {
-      name: 'Profile & Trust Score',
-      href: '/profile',
-      icon: UserCheck2,
-      badge: '94 Score',
-    },
+  let navItems: { name: string; href: string; icon: React.ElementType; badge?: string | null }[] = [
+    { name: 'Dashboard',           href: '/',               icon: LayoutDashboard },
+    { name: 'Market Intelligence', href: '/markets',        icon: Store,           badge: 'Live' },
+    { name: 'AI Recommendations',  href: '/recommendations', icon: Sparkles },
+    { name: 'Verified Buyers',     href: '/buyers',         icon: Users },
+    { name: 'My Lots',             href: '/lots',           icon: Boxes,           badge: activeLotsCount > 0 ? String(activeLotsCount) : null },
+    { name: 'Logistics',           href: '/logistics',      icon: Truck },
+    { name: 'Transactions',        href: '/transactions',   icon: Receipt },
+    { name: 'Profile & Trust',     href: '/profile',        icon: UserCheck2 },
   ];
 
   if (isBuyer) {
     navItems = [
-      {
-        name: 'Buyer Procurement',
-        href: '/buyers',
-        icon: Briefcase,
-        badge: 'Active Demand',
-      },
-      {
-        name: 'Available Farmer Lots',
-        href: '/lots',
-        icon: Boxes,
-        badge: 'Live Listings',
-      },
-      {
-        name: 'Market Intelligence',
-        href: '/markets',
-        icon: Store,
-        badge: 'Regional Mandis',
-      },
-      {
-        name: 'AI Price Forecasts',
-        href: '/recommendations',
-        icon: Sparkles,
-        badge: 'Predictor',
-      },
-      {
-        name: 'Procurement Logistics',
-        href: '/logistics',
-        icon: Truck,
-        badge: null,
-      },
-      {
-        name: 'Escrow Transactions',
-        href: '/transactions',
-        icon: Receipt,
-        badge: 'Safe Escrow',
-      },
+      { name: 'Procurement',         href: '/buyers',         icon: Briefcase },
+      { name: 'Farmer Lots',         href: '/lots',           icon: Boxes,       badge: 'Live' },
+      { name: 'Market Intelligence', href: '/markets',        icon: Store },
+      { name: 'AI Forecasts',        href: '/recommendations', icon: Sparkles },
+      { name: 'Logistics',           href: '/logistics',      icon: Truck },
+      { name: 'Escrow Transactions', href: '/transactions',   icon: Receipt },
     ];
   } else if (isFPO) {
     navItems = [
-      {
-        name: 'FPO Aggregation Hub',
-        href: '/',
-        icon: Building,
-        badge: 'FPO View',
-      },
-      {
-        name: 'Consolidated Lots',
-        href: '/lots',
-        icon: Boxes,
-        badge: 'Aggregated',
-      },
-      {
-        name: 'Institutional Buyers',
-        href: '/buyers',
-        icon: Users,
-        badge: 'Bulk Tenders',
-      },
-      {
-        name: 'Market Intelligence',
-        href: '/markets',
-        icon: Store,
-        badge: 'Price Discovery',
-      },
-      {
-        name: 'Consolidated Logistics',
-        href: '/logistics',
-        icon: Truck,
-        badge: null,
-      },
-      {
-        name: 'Farmer Settlements',
-        href: '/transactions',
-        icon: Receipt,
-        badge: 'DBT Payouts',
-      },
+      { name: 'FPO Dashboard',       href: '/',               icon: Building },
+      { name: 'Consolidated Lots',   href: '/lots',           icon: Boxes },
+      { name: 'Institutional Buyers',href: '/buyers',         icon: Users },
+      { name: 'Market Intelligence', href: '/markets',        icon: Store },
+      { name: 'Logistics',           href: '/logistics',      icon: Truck },
+      { name: 'Farmer Settlements',  href: '/transactions',   icon: Receipt },
     ];
   } else if (isAdmin) {
     navItems = [
-      {
-        name: 'System Admin Console',
-        href: '/',
-        icon: ShieldCheck,
-        badge: 'Admin',
-      },
-      {
-        name: 'All Market Prices',
-        href: '/markets',
-        icon: Store,
-        badge: 'Master',
-      },
-      {
-        name: 'Buyer Verification',
-        href: '/buyers',
-        icon: Users,
-        badge: 'KYC',
-      },
-      {
-        name: 'All Digital Lots',
-        href: '/lots',
-        icon: Boxes,
-        badge: 'Audit',
-      },
-      {
-        name: 'Escrow & Disputes',
-        href: '/transactions',
-        icon: Receipt,
-        badge: 'Escrow Vault',
-      },
-      {
-        name: 'Logistics Fleet Master',
-        href: '/logistics',
-        icon: Truck,
-        badge: 'Fleet',
-      },
+      { name: 'Admin Console',       href: '/',               icon: ShieldAlert,  badge: 'Admin' },
+      { name: 'All Market Prices',   href: '/markets',        icon: Store },
+      { name: 'Buyer Verification',  href: '/buyers',         icon: Users },
+      { name: 'All Digital Lots',    href: '/lots',           icon: Boxes },
+      { name: 'Escrow & Disputes',   href: '/transactions',   icon: Receipt },
+      { name: 'Logistics Fleet',     href: '/logistics',      icon: Truck },
     ];
   }
 
   const displayName = currentUser?.name || (isBuyer ? 'Reliance Retail Hub' : isFPO ? 'Sahyadri Agro FPO' : farmer.name);
-  const subtitle = isBuyer ? 'Nashik Procurement Centre' : isFPO ? 'Member Collective (320 Farmers)' : `${farmer.village}, ${farmer.district}`;
+  const subtitle = isBuyer
+    ? 'Nashik Procurement Centre'
+    : isFPO
+    ? 'Member Collective · 320 Farmers'
+    : `${farmer.village}, ${farmer.district}`;
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-slate-900 text-slate-200 min-h-[calc(100vh-4rem)] p-4 border-r border-slate-800 shrink-0">
-      {/* Active User / Role Card */}
-      <div className="bg-slate-800/80 rounded-2xl p-3.5 mb-6 border border-slate-700/60 shadow-inner">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-brand-600/30 border border-brand-500/40 flex items-center justify-center text-brand-400 font-bold text-base">
-            {displayName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+    <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-[#0d1810] text-slate-200 min-h-[calc(100vh-3.5rem)] border-r border-white/5">
+      {/* User identity card */}
+      <div className="px-3 pt-5 pb-4 border-b border-white/5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-lg bg-brand-800/50 border border-brand-700/40 flex items-center justify-center text-brand-300 font-bold text-sm shrink-0 select-none">
+            {displayName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-white truncate">{displayName}</h4>
-            <div className="flex items-center gap-1 text-[11px] text-slate-400">
-              <MapPin className="w-3 h-3 text-brand-400 shrink-0" />
+            <p className="text-xs font-semibold text-white truncate leading-snug">{displayName}</p>
+            <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
+              <MapPin className="w-2.5 h-2.5 text-brand-500 shrink-0" />
               <span className="truncate">{subtitle}</span>
             </div>
           </div>
         </div>
-
-        <div className="mt-3 pt-2.5 border-t border-slate-700/60 flex items-center justify-between text-xs">
-          <span className="text-slate-400">Role Status</span>
-          <span className="text-brand-300 font-bold text-[11px] bg-brand-950/60 px-2 py-0.5 rounded border border-brand-500/30">
+        <div className="mt-3 flex items-center justify-between">
+          <span className="text-[10px] text-slate-500">Role</span>
+          <span className="text-[10px] font-semibold text-brand-400 bg-brand-950/60 border border-brand-800/50 px-2 py-0.5 rounded-full">
             {currentRole}
           </span>
         </div>
       </div>
 
-      {/* Navigation Section */}
-      <nav className="flex-1 space-y-1.5">
+      {/* Navigation */}
+      <nav className="flex-1 px-2 py-4 space-y-0.5" aria-label="Main navigation">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
+          const isAIRec = item.href === '/recommendations';
 
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 ${
+              className={`nav-item-active relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 group ${
                 isActive
-                  ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              } ${item.highlight && !isActive ? 'border border-amber-500/30 text-amber-200 bg-amber-500/10' : ''}`}
+                  ? 'bg-white/10 text-white'
+                  : isAIRec
+                  ? 'text-amber-300/80 hover:bg-white/5 hover:text-amber-200'
+                  : 'text-slate-400 hover:bg-white/5 hover:text-white'
+              }`}
+              aria-current={isActive ? 'page' : undefined}
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <Icon
-                  className={`w-4 h-4 shrink-0 ${
-                    isActive ? 'text-white' : item.highlight ? 'text-amber-400' : 'text-slate-400'
+                  className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                    isActive ? 'text-brand-400' : isAIRec ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300'
                   }`}
                 />
                 <span className="truncate">{item.name}</span>
               </div>
 
               {item.badge && (
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 ml-1 ${
-                    isActive
-                      ? 'bg-brand-700 text-white'
-                      : item.highlight
-                      ? 'bg-amber-400 text-slate-950'
-                      : 'bg-slate-800 text-slate-400'
-                  }`}
-                >
+                <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ml-1 ${
+                  isActive
+                    ? 'bg-brand-700 text-brand-200'
+                    : isAIRec
+                    ? 'bg-amber-800/40 text-amber-300'
+                    : 'bg-white/10 text-slate-400'
+                }`}>
                   {item.badge}
                 </span>
               )}
@@ -274,13 +146,13 @@ export const Sidebar: React.FC = () => {
         })}
       </nav>
 
-      {/* Trust & Safe Escrow Footer Badge */}
-      <div className="mt-auto pt-4 border-t border-slate-800">
-        <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-3 flex items-center gap-2.5 text-xs text-emerald-200">
-          <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
-          <div className="min-w-0">
-            <div className="font-bold text-white text-[11px]">Safe Escrow Protection</div>
-            <div className="text-[10px] text-emerald-300 truncate">100% DBT Bank Guaranteed</div>
+      {/* Footer — Trust indicator */}
+      <div className="px-3 py-4 border-t border-white/5">
+        <div className="flex items-center gap-2 text-[10px] text-slate-500">
+          <ShieldCheck className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+          <div>
+            <p className="text-slate-400 font-medium">Safe Escrow Protection</p>
+            <p className="text-slate-600">100% DBT Guaranteed</p>
           </div>
         </div>
       </div>

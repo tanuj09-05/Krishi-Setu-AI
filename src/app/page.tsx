@@ -5,31 +5,30 @@ import Link from 'next/link';
 import { useApp } from '../context/AppContext';
 import {
   TrendingUp,
-  ArrowRight,
   Boxes,
   Users,
   Store,
   Sparkles,
   ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
   PlusCircle,
-  Clock,
-  Calendar,
-  Building,
+  Receipt,
   Coins,
-  ReceiptText,
+  Activity,
+  ArrowUpRight,
 } from 'lucide-react';
 import { HeroRecommendationCard } from '../components/recommendation/HeroRecommendationCard';
 import { NetRealizationFormula } from '../components/recommendation/NetRealizationFormula';
 import { LotCard } from '../components/lots/LotCard';
 import { BuyerCard } from '../components/buyer/BuyerCard';
 import { SendLotModal } from '../components/buyer/SendLotModal';
+import { StatCard } from '../components/ui/StatCard';
+import { SectionHeader } from '../components/ui/SectionHeader';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Badge } from '../components/ui/Badge';
 import { MOCK_CROPS, MOCK_BUYERS } from '../data/mockData';
 import { InstitutionalBuyer, AISaleRecommendation } from '../types';
 import { recommendationService } from '../services/recommendationService';
 import { buyerService } from '../services/buyerService';
-import { marketService } from '../services/marketService';
 
 export default function DashboardPage() {
   const { farmer, lots, transactions } = useApp();
@@ -60,6 +59,8 @@ export default function DashboardPage() {
 
   const activeLots = lots.filter((l) => l.status === 'active_listed' || l.status === 'offer_received');
   const totalLotsCount = lots.length;
+  const totalEarnings = transactions.reduce((acc, t) => acc + t.netRealizationAmount, 0);
+  const pendingOffers = lots.reduce((acc, l) => acc + (l.offers?.filter(o => o.status === 'pending').length ?? 0), 0);
 
   const handleOpenSendLot = (buyer: InstitutionalBuyer) => {
     setSelectedBuyerForModal(buyer);
@@ -96,59 +97,72 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Top Banner & Quick Farmer Summary */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-card border border-slate-200">
+    <div className="space-y-7 animate-fade-in">
+
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full border border-brand-200">
-              Welcome back, {farmer.name}
-            </span>
-            <span className="text-xs text-slate-500">
-              • {farmer.village}, {farmer.district}
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-            KrishiSetu AI Market Dashboard
+          <p className="text-xs font-medium text-brand-700 mb-1">
+            Welcome back, {farmer.name} · {farmer.village}, {farmer.district}
+          </p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+            Market Intelligence Dashboard
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Optimizing your harvest timing, buyer linkages, and net realization take-home payout.
+          <p className="text-sm text-stone-500 mt-0.5">
+            Harvest timing, buyer linkages and net realization — optimized.
           </p>
         </div>
-
-        {/* Quick Summary Stats */}
-        <div className="flex items-center gap-3">
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 text-center min-w-[90px]">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-              Active Lots
-            </span>
-            <span className="text-xl font-black text-slate-900">{activeLots.length}</span>
-          </div>
-
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-center min-w-[110px]">
-            <span className="text-[10px] text-brand-700 font-bold uppercase tracking-wider block">
-              Trust Rating
-            </span>
-            <span className="text-xl font-black text-brand-800">{farmer.trustScore}%</span>
-          </div>
-
-          <Link
-            href="/lots/new"
-            className="flex items-center gap-1.5 px-4 py-3 bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold rounded-2xl shadow-sm transition active:scale-95 shrink-0"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>List Harvest</span>
-          </Link>
-        </div>
+        <Link
+          href="/lots/new"
+          className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors duration-150 active:scale-95 shrink-0"
+        >
+          <PlusCircle className="w-4 h-4" />
+          <span>List Harvest</span>
+        </Link>
       </div>
 
-      {/* 1. HERO AI RECOMMENDATION CARD (Signature Feature) */}
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard
+          label="Active Lots"
+          value={activeLots.length}
+          icon={Boxes}
+          accent={activeLots.length > 0 ? 'green' : 'neutral'}
+          trendLabel={activeLots.length > 0 ? `${activeLots.length} on network` : 'None listed'}
+        />
+        <StatCard
+          label="Trust Score"
+          value={farmer.trustScore}
+          unit="%"
+          icon={ShieldCheck}
+          accent="green"
+          trendLabel="Tier 1 Verified"
+          trend="up"
+        />
+        <StatCard
+          label="Total Realized"
+          value={`₹${(totalEarnings / 1000).toFixed(0)}k`}
+          icon={Coins}
+          accent={totalEarnings > 0 ? 'green' : 'neutral'}
+          trendLabel={`${transactions.length} transactions`}
+        />
+        <StatCard
+          label="Pending Offers"
+          value={pendingOffers}
+          icon={Activity}
+          accent={pendingOffers > 0 ? 'amber' : 'neutral'}
+          trendLabel={pendingOffers > 0 ? 'Awaiting response' : 'No offers'}
+          trend={pendingOffers > 0 ? 'up' : undefined}
+        />
+      </div>
+
+      {/* AI Recommendation Hero */}
       <HeroRecommendationCard
         recommendation={topRec}
         onActionClick={() => handleOpenSendLot(buyersList[0] || MOCK_BUYERS[0])}
       />
 
-      {/* 2. NET REALIZATION CORE FORMULA WIDGET */}
+      {/* Net Realization Formula */}
       <NetRealizationFormula
         sellingPrice={topRec.expectedPricePerKg}
         transportCost={topRec.transportCostPerKg}
@@ -158,100 +172,85 @@ export default function DashboardPage() {
         cropName={topRec.cropName}
       />
 
-      {/* 3. Crop Market Snapshot */}
+      {/* Crop Market Snapshot */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-emerald-100 text-brand-700">
-              <Store className="w-4 h-4" />
-            </span>
-            <h2 className="text-lg font-bold text-slate-900">Today&apos;s Crop Market Snapshot</h2>
-          </div>
-          <Link
-            href="/markets"
-            className="text-xs font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
-          >
-            <span>Compare All Mandis</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <SectionHeader
+          icon={Store}
+          iconAccent="green"
+          title="Today's Crop Market Snapshot"
+          viewAllHref="/markets"
+          viewAllLabel="Compare all mandis"
+        />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
           {MOCK_CROPS.map((crop) => (
             <Link
               key={crop.id}
               href={`/markets?crop=${encodeURIComponent(crop.name)}`}
-              className="bg-white rounded-2xl p-4 shadow-card border border-slate-200 hover:border-brand-400 transition block"
+              className="bg-white rounded-xl p-3.5 shadow-card border border-stone-200 hover:border-brand-300 hover:shadow-card-md transition-all duration-150 group block"
             >
-              <div className="flex items-center justify-between text-2xl mb-1">
-                <span>{crop.icon}</span>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    crop.priceTrend === 'rising'
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : crop.priceTrend === 'falling'
-                      ? 'bg-rose-100 text-rose-800'
-                      : 'bg-slate-100 text-slate-700'
-                  }`}
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xl">{crop.icon}</span>
+                <Badge
+                  variant={crop.priceTrend === 'rising' ? 'success' : crop.priceTrend === 'falling' ? 'danger' : 'neutral'}
+                  size="sm"
                 >
-                  {crop.priceTrend === 'rising' ? '▲ Rising' : crop.priceTrend === 'falling' ? '▼ Falling' : '■ Steady'}
-                </span>
+                  {crop.priceTrend === 'rising' ? '↑' : crop.priceTrend === 'falling' ? '↓' : '–'}
+                </Badge>
               </div>
-              <h3 className="font-bold text-xs sm:text-sm text-slate-900 truncate">{crop.name}</h3>
-              <div className="text-base font-black text-slate-900 mt-1">
+              <p className="font-semibold text-xs text-gray-900 truncate">{crop.name}</p>
+              <p className="text-base font-bold text-gray-900 mt-0.5 tabular-nums">
                 ₹{crop.currentAvgPricePerKg.toFixed(1)}
-                <span className="text-xs font-normal text-slate-400">/kg</span>
-              </div>
-              <span className="text-[10px] text-slate-400">{crop.localName}</span>
+                <span className="text-xs font-normal text-stone-400">/kg</span>
+              </p>
+              <p className="text-[10px] text-stone-400 mt-0.5">{crop.localName}</p>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* 4. Active Lots & Incoming Buyer Offers */}
+      {/* Active Lots */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-amber-100 text-amber-800">
-              <Boxes className="w-4 h-4" />
-            </span>
-            <h2 className="text-lg font-bold text-slate-900">Your Active Digital Lots & Bids</h2>
+        <SectionHeader
+          icon={Boxes}
+          iconAccent="amber"
+          title="Your Active Lots & Incoming Bids"
+          viewAllHref="/lots"
+          viewAllLabel={`View all ${totalLotsCount}`}
+        />
+        {lots.length === 0 ? (
+          <EmptyState
+            icon={Boxes}
+            title="No lots listed yet"
+            description="Create your first digital lot to start receiving buyer offers."
+            action={
+              <Link
+                href="/lots/new"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-700 text-white rounded-lg text-xs font-semibold hover:bg-brand-800 transition-colors"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                Create Lot
+              </Link>
+            }
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {lots.slice(0, 3).map((lot) => (
+              <LotCard key={lot.id} lot={lot} />
+            ))}
           </div>
-          <Link
-            href="/lots"
-            className="text-xs font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
-          >
-            <span>View All Lots ({totalLotsCount})</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {lots.slice(0, 3).map((lot) => (
-            <LotCard key={lot.id} lot={lot} />
-          ))}
-        </div>
+        )}
       </div>
 
-      {/* 5. Verified Buyers with High Procurement Demand */}
+      {/* Verified Buyers */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-emerald-100 text-brand-700">
-              <Users className="w-4 h-4" />
-            </span>
-            <h2 className="text-lg font-bold text-slate-900">Verified Nearby Institutional Buyers</h2>
-          </div>
-          <Link
-            href="/buyers"
-            className="text-xs font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
-          >
-            <span>Explore All Buyers</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <SectionHeader
+          icon={Users}
+          iconAccent="green"
+          title="Verified Institutional Buyers"
+          viewAllHref="/buyers"
+          viewAllLabel="Explore all buyers"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {buyersList.slice(0, 3).map((buyer) => (
             <BuyerCard
               key={buyer.id}
@@ -262,42 +261,34 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 6. Recent Escrow Transactions & Payouts */}
+      {/* Recent Transactions */}
       {transactions.length > 0 && (
-        <div className="bg-white rounded-3xl p-6 shadow-card border border-slate-200">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-indigo-100 text-indigo-700">
-                <ReceiptText className="w-4 h-4" />
-              </span>
-              <h2 className="text-lg font-bold text-slate-900">Recent Escrow Settlements</h2>
-            </div>
-            <Link
-              href="/transactions"
-              className="text-xs font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
-            >
-              <span>View All Transactions</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            {transactions.slice(0, 2).map((txn) => (
-              <div key={txn.id} className="py-3.5 flex items-center justify-between flex-wrap gap-2">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-black text-slate-900 text-sm">{txn.cropName} ({txn.quantityKg} kg)</span>
-                    <span className="text-xs text-slate-400">• {txn.lotNumber}</span>
-                  </div>
-                  <div className="text-xs text-slate-500 mt-0.5">Sold to: {txn.buyerName}</div>
+        <div>
+          <SectionHeader
+            icon={Receipt}
+            iconAccent="indigo"
+            title="Recent Escrow Settlements"
+            viewAllHref="/transactions"
+            viewAllLabel="View all transactions"
+          />
+          <div className="bg-white rounded-xl border border-stone-200 shadow-card divide-y divide-stone-100">
+            {transactions.slice(0, 3).map((txn) => (
+              <div key={txn.id} className="px-5 py-4 flex items-center justify-between gap-4 hover:bg-stone-50 transition-colors">
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm text-gray-900 truncate">
+                    {txn.cropName} · {txn.quantityKg.toLocaleString('en-IN')} kg
+                  </p>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    {txn.buyerName} · <span className="font-mono text-stone-400">{txn.lotNumber}</span>
+                  </p>
                 </div>
-
-                <div className="text-right">
-                  <div className="text-xs text-slate-400">Net Realization:</div>
-                  <div className="text-base font-black text-emerald-600">₹{txn.netRealizationAmount.toLocaleString('en-IN')}</div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full">
-                    {txn.paymentStatus === 'completed' ? 'Direct DBT Settled ✓' : 'Secured in Escrow'}
-                  </span>
+                <div className="text-right shrink-0">
+                  <p className="text-base font-bold text-brand-800 tabular-nums">
+                    ₹{txn.netRealizationAmount.toLocaleString('en-IN')}
+                  </p>
+                  <Badge variant={txn.paymentStatus === 'completed' ? 'success' : 'warning'} size="sm">
+                    {txn.paymentStatus === 'completed' ? 'Settled' : 'In Escrow'}
+                  </Badge>
                 </div>
               </div>
             ))}
@@ -305,7 +296,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Modal for Sending Lot to Buyer */}
+      {/* Send Lot Modal */}
       {selectedBuyerForModal && (
         <SendLotModal
           buyer={selectedBuyerForModal}

@@ -5,17 +5,8 @@ import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
 import {
   Sparkles,
-  TrendingUp,
-  Clock,
-  Building,
-  Truck,
   Coins,
-  ShieldCheck,
-  CheckCircle2,
-  Calendar,
-  AlertTriangle,
   ArrowRight,
-  Filter,
 } from 'lucide-react';
 import { HeroRecommendationCard } from '../../components/recommendation/HeroRecommendationCard';
 import { PriceForecastChart } from '../../components/recommendation/PriceForecastChart';
@@ -25,6 +16,8 @@ import { MandiComparisonTable } from '../../components/market/MandiComparisonTab
 import { recommendationService } from '../../services/recommendationService';
 import { MOCK_CROPS } from '../../data/mockData';
 import { AISaleRecommendation } from '../../types';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { SectionHeader } from '../../components/ui/SectionHeader';
 
 export default function RecommendationsPage() {
   const { selectedCropForAnalysis, setSelectedCropForAnalysis, selectedQuantityKg, setSelectedQuantityKg } = useApp();
@@ -45,67 +38,47 @@ export default function RecommendationsPage() {
   }, [selectedCropForAnalysis, selectedQuantityKg]);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-card border border-slate-200">
-        <div>
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader
+        eyebrow="Autonomous Recommendation Engine"
+        eyebrowIcon={Sparkles}
+        title="AI Sale Timing & Buyer Recommendation"
+        description="Transparent scoring considering price curves, arrival surges, freight penalties, and buyer credit ratings."
+        action={
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-amber-100 text-amber-800">
-              <Sparkles className="w-4 h-4" />
-            </span>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Autonomous Recommendation Engine
-            </span>
+            <div>
+              <p className="text-[9px] font-semibold text-stone-400 uppercase tracking-wider mb-1">Crop</p>
+              <select
+                value={selectedCropForAnalysis}
+                onChange={(e) => setSelectedCropForAnalysis(e.target.value)}
+                className="px-3 py-2 bg-white border border-stone-200 rounded-lg text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+              >
+                {MOCK_CROPS.map((c) => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <p className="text-[9px] font-semibold text-stone-400 uppercase tracking-wider mb-1">Qty</p>
+              <select
+                value={selectedQuantityKg}
+                onChange={(e) => setSelectedQuantityKg(parseInt(e.target.value))}
+                className="px-3 py-2 bg-white border border-stone-200 rounded-lg text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+              >
+                <option value="500">500 kg</option>
+                <option value="1200">1,200 kg</option>
+                <option value="2500">2,500 kg</option>
+                <option value="5000">5,000 kg</option>
+              </select>
+            </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-            AI Sale Timing & Buyer Recommendation
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Transparent scoring considering price curves, arrival surges, freight penalties, and buyer credit ratings.
-          </p>
-        </div>
+        }
+      />
 
-        {/* Dynamic Selector */}
-        <div className="flex flex-wrap items-center gap-3 bg-slate-50 p-2 rounded-2xl border border-slate-200">
-          <div>
-            <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">
-              Select Crop
-            </label>
-            <select
-              value={selectedCropForAnalysis}
-              onChange={(e) => setSelectedCropForAnalysis(e.target.value)}
-              className="bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-brand-500"
-            >
-              {MOCK_CROPS.map((c) => (
-                <option key={c.id} value={c.name}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">
-              Quantity
-            </label>
-            <select
-              value={selectedQuantityKg}
-              onChange={(e) => setSelectedQuantityKg(parseInt(e.target.value))}
-              className="bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-brand-500"
-            >
-              <option value="500">500 kg (Small Lot)</option>
-              <option value="1200">1,200 kg</option>
-              <option value="2500">2,500 kg</option>
-              <option value="5000">5,000 kg</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* 1. Hero Recommendation Banner */}
+      {/* 1. Hero Recommendation Panel */}
       {recommendation && <HeroRecommendationCard recommendation={recommendation} />}
 
-      {/* 2. 7-Day Forecast & Supply Wave Predictor */}
+      {/* 2. Price Forecast Chart */}
       {recommendation && (
         <PriceForecastChart
           data={recommendation.priceForecast7Days}
@@ -114,7 +87,7 @@ export default function RecommendationsPage() {
         />
       )}
 
-      {/* 3. Transparent Explainable Factors & Risk Analysis */}
+      {/* 3. Explainable Factor Analysis */}
       {recommendation && (
         <FactorAnalysis
           reasons={recommendation.reasons}
@@ -122,13 +95,14 @@ export default function RecommendationsPage() {
         />
       )}
 
-      {/* 4. Complete Net Realization Matrix Table */}
+      {/* 4. Comparison Table */}
       {recommendation && (
         <div>
-          <h2 className="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <Coins className="w-5 h-5 text-brand-600" />
-            <span>Alternative Destinations Realization Comparison</span>
-          </h2>
+          <SectionHeader
+            icon={Coins}
+            iconAccent="green"
+            title="Alternative Destinations — Net Realization Comparison"
+          />
           <MandiComparisonTable
             data={recommendation.breakdown}
             cropName={selectedCropForAnalysis}
@@ -137,30 +111,27 @@ export default function RecommendationsPage() {
         </div>
       )}
 
-      {/* Call to Action Bar */}
-      <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl border border-slate-800">
+      {/* CTA Bar */}
+      <div className="bg-[#0d1810] text-white rounded-2xl px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-white/10 shadow-card-md">
         <div>
-          <h3 className="text-lg sm:text-xl font-bold text-white">
-            Ready to execute the recommended sale?
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <h3 className="text-sm font-semibold text-white">Ready to execute the recommended sale?</h3>
+          <p className="text-xs text-slate-400 mt-0.5">
             Connect with Buyer A immediately or list a digital lot for competitive bidding.
           </p>
         </div>
-
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 shrink-0">
           <Link
             href="/lots/new"
-            className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-2xl text-xs sm:text-sm border border-white/20 transition"
+            className="px-4 py-2 text-xs font-medium text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors"
           >
-            Create Digital Lot
+            Create Lot
           </Link>
           <Link
             href="/buyers"
-            className="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-md shadow-brand-600/30 transition flex items-center gap-2"
+            className="px-4 py-2 text-xs font-semibold text-gray-950 bg-amber-400 hover:bg-amber-300 rounded-lg shadow-sm transition-colors active:scale-95 flex items-center gap-1.5"
           >
-            <span>Proceed to Buyer Matching</span>
-            <ArrowRight className="w-4 h-4" />
+            Buyer Matching
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
