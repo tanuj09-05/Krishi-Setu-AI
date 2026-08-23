@@ -20,11 +20,11 @@ export default function OnboardingPage() {
   const { role, setRole, language, setLanguage, showToast } = useApp();
 
   const [step, setStep] = useState<number>(1);
-  const [mobile, setMobile] = useState<string>('9823456789');
-  const [otp, setOtp] = useState<string>('4421');
-  const [name, setName] = useState<string>('Rameshwar Patil');
-  const [village, setVillage] = useState<string>('Dindori');
-  const [district, setDistrict] = useState<string>('Nashik');
+  const [mobile, setMobile] = useState<string>('');
+  const [otp, setOtp] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [village, setVillage] = useState<string>('');
+  const [district, setDistrict] = useState<string>('');
   const [state, setState] = useState<string>('Maharashtra');
   const [primaryCrop, setPrimaryCrop] = useState<string>('Tomato');
 

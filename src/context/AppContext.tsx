@@ -10,13 +10,7 @@ import {
   PaymentTransaction,
   AISaleRecommendation,
 } from '../types';
-import {
-  MOCK_FARMER,
-  MOCK_LOTS,
-  MOCK_LOGISTICS,
-  MOCK_TRANSACTIONS,
-  MOCK_TOMATO_RECOMMENDATION,
-} from '../data/mockData';
+import { useAuth } from './AuthContext';
 import { authService } from '../services/authService';
 import { lotService } from '../services/lotService';
 import { logisticsService } from '../services/logisticsService';
@@ -55,12 +49,34 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { currentUser, currentRole } = useAuth();
   const [role, setRole] = useState<UserRole>('farmer');
   const [language, setLanguageState] = useState<string>('English');
-  const [farmer, setFarmer] = useState<FarmerProfile>(MOCK_FARMER);
-  const [lots, setLots] = useState<DigitalLot[]>(MOCK_LOTS);
-  const [logistics, setLogistics] = useState<LogisticsBooking[]>(MOCK_LOGISTICS);
-  const [transactions, setTransactions] = useState<PaymentTransaction[]>(MOCK_TRANSACTIONS);
+
+  const defaultFarmer: FarmerProfile = {
+    id: currentUser ? `farmer_${currentUser.id}` : 'farmer_new',
+    name: currentUser?.name || 'Farmer',
+    phone: currentUser?.phone_number || '',
+    village: currentUser?.farmer_profile?.village || (currentUser?.location?.split(',')[0]?.trim() || ''),
+    taluka: currentUser?.farmer_profile?.village || (currentUser?.location?.split(',')[0]?.trim() || ''),
+    district: currentUser?.farmer_profile?.district || (currentUser?.location?.split(',')[1]?.trim() || 'Nashik'),
+    state: currentUser?.farmer_profile?.state || 'Maharashtra',
+    fpoName: currentUser?.farmer_profile?.organization_fpo || 'Sahyadri Farmers Collective',
+    fpoMemberId: currentUser?.farmer_profile?.fpo_member_id || `SF-${currentUser?.id || '2026'}`,
+    landHoldingAcres: currentUser?.farmer_profile?.farm_size_acres || 2.0,
+    primaryCrops: ['Tomato', 'Onion', 'Soybean', 'Wheat'],
+    bankAccountLinked: currentUser?.farmer_profile?.bank_account_linked ?? true,
+    kycVerified: currentUser?.farmer_profile?.kyc_verified ?? true,
+    trustScore: currentUser?.farmer_profile?.trust_score || 90,
+    totalLotsSold: 0,
+    totalEarnings: 0,
+    rating: 4.8,
+  };
+
+  const [farmer, setFarmer] = useState<FarmerProfile>(defaultFarmer);
+  const [lots, setLots] = useState<DigitalLot[]>([]);
+  const [logistics, setLogistics] = useState<LogisticsBooking[]>([]);
+  const [transactions, setTransactions] = useState<PaymentTransaction[]>([]);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedCropForAnalysis, setSelectedCropForAnalysis] = useState<string>('Tomato');
@@ -92,22 +108,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       if (fetchedFarmer.status === 'fulfilled' && fetchedFarmer.value) {
         setFarmer(fetchedFarmer.value);
+      } else if (currentUser) {
+        setFarmer({
+          id: `farmer_${currentUser.id}`,
+          name: currentUser.name,
+          phone: currentUser.phone_number,
+          village: currentUser.farmer_profile?.village || (currentUser.location?.split(',')[0]?.trim() || 'Village'),
+          taluka: currentUser.farmer_profile?.village || (currentUser.location?.split(',')[0]?.trim() || 'Taluka'),
+          district: currentUser.farmer_profile?.district || (currentUser.location?.split(',')[1]?.trim() || 'District'),
+          state: currentUser.farmer_profile?.state || 'Maharashtra',
+          fpoName: currentUser.farmer_profile?.organization_fpo || 'Sahyadri Farmers Collective',
+          fpoMemberId: currentUser.farmer_profile?.fpo_member_id || `SF-${currentUser.id}`,
+          landHoldingAcres: currentUser.farmer_profile?.farm_size_acres || 2.0,
+          primaryCrops: ['Tomato', 'Onion', 'Soybean', 'Wheat'],
+          bankAccountLinked: currentUser.farmer_profile?.bank_account_linked ?? true,
+          kycVerified: currentUser.farmer_profile?.kyc_verified ?? true,
+          trustScore: currentUser.farmer_profile?.trust_score || 90,
+          totalLotsSold: 0,
+          totalEarnings: 0,
+          rating: 4.8,
+        });
       }
-      if (fetchedLots.status === 'fulfilled' && fetchedLots.value.length > 0) {
+
+      if (fetchedLots.status === 'fulfilled') {
         setLots(fetchedLots.value);
       }
-      if (fetchedLogistics.status === 'fulfilled' && fetchedLogistics.value.length > 0) {
+      if (fetchedLogistics.status === 'fulfilled') {
         setLogistics(fetchedLogistics.value);
       }
-      if (fetchedTxns.status === 'fulfilled' && fetchedTxns.value.length > 0) {
+      if (fetchedTxns.status === 'fulfilled') {
         setTransactions(fetchedTxns.value);
       }
     } catch (err) {
-      console.warn('Could not sync with backend on startup. Using local state.', err);
+      console.warn('Could not sync with backend on startup.', err);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     refreshAllData();
@@ -130,11 +167,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ...lotData,
       farmerId: farmer.id,
       farmerName: farmer.name,
-      location: `${farmer.village}, ${farmer.district}`,
+      location: farmer.village ? `${farmer.village}, ${farmer.district}` : (farmer.district || 'Farm Gate'),
       farmPincode: '422202',
     });
     setLots((prev) => [newLot, ...prev]);
-    showToast('Digital Lot Created!', `Lot #${newLot.lotNumber} listed for buyer matching.`);
+    showToast('Crop Lot Created!', `Crop Lot #${newLot.lotNumber} listed for buyer matching.`);
     return newLot;
   };
 
@@ -148,31 +185,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setLots((prev) => prev.map((l) => (l.id === lotId ? updatedLot : l)));
 
     if (action === 'accept') {
-      const acceptedOffer = updatedLot.offers.find((o) => o.id === offerId);
-      if (acceptedOffer) {
-        showToast(
-          'Deal Locked Successfully! 🎉',
-          `Sold to ${acceptedOffer.buyerName} at ₹${acceptedOffer.offeredPricePerKg}/kg. Escrow created!`
-        );
-      }
-      // Refresh transactions and logistics from Django to get server-computed net realization
-      const [updatedTxns, updatedLogistics] = await Promise.all([
-        transactionService.getAllTransactions(),
-        logisticsService.getAllBookings(),
-      ]);
-      setTransactions(updatedTxns);
-      setLogistics(updatedLogistics);
+      showToast('Deal Locked!', 'Escrow funding initiated. Logistics dispatch slot booked.');
+      refreshAllData();
     } else if (action === 'counter') {
-      showToast('Counter Offer Sent', `Proposed ₹${counterPrice}/kg to the buyer.`);
-    } else if (action === 'reject') {
-      showToast('Offer Declined', 'The buyer will be notified of your decision.', 'info');
+      showToast('Counter-Offer Sent', `Counter proposal of ₹${counterPrice}/kg delivered to buyer.`);
+    } else {
+      showToast('Offer Declined', 'The offer was declined.', 'info');
     }
   };
 
   const bookLogistics = async (bookingData: any): Promise<LogisticsBooking> => {
-    const newBooking = await logisticsService.bookLogistics(bookingData);
+    const newBooking = await logisticsService.createBooking({
+      ...bookingData,
+      farmerName: farmer.name,
+      farmerPhone: farmer.phone,
+      pickupAddress: `${farmer.village}, ${farmer.district}`,
+    });
     setLogistics((prev) => [newBooking, ...prev]);
-    showToast('Transport Booked!', `Driver assigned for ${newBooking.destinationName}`);
+    showToast('Vehicle Dispatched!', `Tracking #${newBooking.trackingNumber} scheduled.`);
     return newBooking;
   };
 

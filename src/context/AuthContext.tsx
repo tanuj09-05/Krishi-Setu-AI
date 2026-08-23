@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { authService, AuthUser } from '../services/authService';
 
 export type UserRoleType = 'FARMER' | 'BUYER' | 'FPO' | 'ADMIN';
@@ -10,8 +11,12 @@ interface AuthContextType {
   currentRole: UserRoleType;
   isAuthenticated: boolean;
   loading: boolean;
-  loginAsRole: (role: UserRoleType) => Promise<void>;
+  login: (credentials: { email?: string; phone_number?: string; password?: string; otp?: string }) => Promise<any>;
+  signup: (signupData: any) => Promise<any>;
   logout: () => void;
+  updateProfile: (data: any) => Promise<AuthUser | null>;
+  changePassword: (oldPassword: string, newPassword: string, confirmNewPassword?: string) => Promise<any>;
+  loginAsRole: (role: UserRoleType) => Promise<void>;
   isFarmer: boolean;
   isBuyer: boolean;
   isFPO: boolean;
@@ -20,41 +25,64 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password', '/market', '/markets'];
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [currentRole, setCurrentRole] = useState<UserRoleType>('FARMER');
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Initialize auth on load
+  // Initialize auth on page load
   useEffect(() => {
     async function initAuth() {
       try {
         const user = await authService.getCurrentUser();
         if (user) {
           setCurrentUser(user);
-          setCurrentRole(user.role);
+          setCurrentRole((user.role as UserRoleType) || 'FARMER');
         } else {
-          // Default initial demo session as Farmer
-          const defaultUser: AuthUser = {
-            id: 1,
-            phone_number: '9823012345',
-            name: 'Rameshwar Patil',
-            email: 'farmer@demo.krishisetu',
-            role: 'FARMER',
-            role_display: 'Farmer',
-            location: 'Dindori, Nashik',
-          };
-          setCurrentUser(defaultUser);
-          setCurrentRole('FARMER');
+          setCurrentUser(null);
         }
       } catch (e) {
-        console.warn('Auth init failed:', e);
+        console.warn('Auth initialization error:', e);
       } finally {
         setLoading(false);
       }
     }
     initAuth();
   }, []);
+
+  const login = async (credentials: { email?: string; phone_number?: string; password?: string; otp?: string }) => {
+    setLoading(true);
+    try {
+      const res = await authService.login(credentials);
+      if (res && res.user) {
+        setCurrentUser(res.user);
+        setCurrentRole(res.user.role || 'FARMER');
+        return res;
+      }
+      return res;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signup = async (signupData: any) => {
+    setLoading(true);
+    try {
+      const res = await authService.register(signupData);
+      if (res && res.user) {
+        setCurrentUser(res.user);
+        setCurrentRole(res.user.role || 'FARMER');
+        return res;
+      }
+      return res;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loginAsRole = async (role: UserRoleType) => {
     setLoading(true);
@@ -63,24 +91,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res && res.user) {
         setCurrentUser(res.user);
         setCurrentRole(res.user.role);
-      } else {
-        // Fallback demo state
-        const names: Record<UserRoleType, string> = {
-          FARMER: 'Rameshwar Patil',
-          BUYER: 'Aniket Deshmukh (Reliance Fresh Hub)',
-          FPO: 'Sahyadri Agro Farmers Co.',
-          ADMIN: 'System Administrator',
-        };
-        const demoUser: AuthUser = {
-          id: role === 'FARMER' ? 1 : role === 'BUYER' ? 2 : role === 'FPO' ? 3 : 4,
-          phone_number: role === 'FARMER' ? '9823012345' : '9823098765',
-          name: names[role],
-          email: `${role.toLowerCase()}@demo.krishisetu`,
-          role: role,
-          role_display: role,
-        };
-        setCurrentUser(demoUser);
-        setCurrentRole(role);
       }
     } catch (e) {
       console.warn(`Login as ${role} failed:`, e);
@@ -89,25 +99,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfile = async (data: any) => {
+    const updated = await authService.updateProfile(data);
+    if (updated) {
+      setCurrentUser(updated);
+      if (updated.role) setCurrentRole(updated.role as UserRoleType);
+    }
+    return updated;
+  };
+
+  const changePassword = async (oldPassword: string, newPassword: string, confirmNewPassword?: string) => {
+    return await authService.changePassword({
+      old_password: oldPassword,
+      new_password: newPassword,
+      confirm_new_password: confirmNewPassword,
+    });
+  };
+
   const logout = () => {
     authService.logout();
     setCurrentUser(null);
     setCurrentRole('FARMER');
+    router.push('/login');
   };
+
+  const isFarmer = currentRole === 'FARMER';
+  const isBuyer = currentRole === 'BUYER';
+  const isFPO = currentRole === 'FPO';
+  const isAdmin = currentRole === 'ADMIN';
+  const isAuthenticated = !!currentUser;
 
   return (
     <AuthContext.Provider
       value={{
         currentUser,
         currentRole,
-        isAuthenticated: !!currentUser,
+        isAuthenticated,
         loading,
-        loginAsRole,
+        login,
+        signup,
         logout,
-        isFarmer: currentRole === 'FARMER',
-        isBuyer: currentRole === 'BUYER',
-        isFPO: currentRole === 'FPO',
-        isAdmin: currentRole === 'ADMIN',
+        updateProfile,
+        changePassword,
+        loginAsRole,
+        isFarmer,
+        isBuyer,
+        isFPO,
+        isAdmin,
       }}
     >
       {children}

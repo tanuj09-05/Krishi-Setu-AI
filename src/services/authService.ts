@@ -1,5 +1,4 @@
 import { FarmerProfile } from '../types';
-import { MOCK_FARMER } from '../data/mockData';
 import { api } from '../lib/api';
 
 export interface AuthUser {
@@ -11,12 +10,24 @@ export interface AuthUser {
   role_display?: string;
   preferred_language?: string;
   location?: string;
-  farmer_profile?: any;
+  farmer_profile?: {
+    id: number;
+    farm_location: string;
+    village: string;
+    district: string;
+    state: string;
+    farm_size_acres: number;
+    organization_fpo?: string;
+    fpo_member_id?: string;
+    trust_score: number;
+    kyc_verified: boolean;
+    bank_account_linked: boolean;
+  };
   buyer_profile?: any;
 }
 
 export const authService = {
-  getFarmerProfile: async (): Promise<FarmerProfile> => {
+  getFarmerProfile: async (): Promise<FarmerProfile | null> => {
     const data = (await api.getFarmerProfile()) as any;
     if (data && data.user_details) {
       return {
@@ -24,22 +35,46 @@ export const authService = {
         name: data.user_details.name,
         phone: data.user_details.phone_number,
         village: data.village || 'Dindori',
-        taluka: data.taluka || 'Dindori',
+        taluka: data.taluka || data.district || 'Dindori',
         district: data.district || 'Nashik',
         state: data.state || 'Maharashtra',
-        fpoName: data.organization_fpo || 'Sahyadri Farmers Producer Co. Ltd.',
-        fpoMemberId: data.fpo_member_id || 'SF-2024-8842',
-        landHoldingAcres: parseFloat(data.farm_size_acres) || 4.5,
-        primaryCrops: ['Tomato', 'Onion', 'Soybean', 'Grapes'],
+        fpoName: data.organization_fpo || 'Sahyadri Farmers Collective',
+        fpoMemberId: data.fpo_member_id || `SF-${data.id}`,
+        landHoldingAcres: parseFloat(data.farm_size_acres) || 2.0,
+        primaryCrops: ['Tomato', 'Onion', 'Soybean', 'Wheat'],
         bankAccountLinked: data.bank_account_linked ?? true,
         kycVerified: data.verification_status === 'VERIFIED',
-        trustScore: data.trust_score || 94,
-        totalLotsSold: data.completed_transactions || 18,
-        totalEarnings: 342500,
-        rating: parseFloat(data.rating) || 4.9,
+        trustScore: data.trust_score || 90,
+        totalLotsSold: data.completed_transactions || 0,
+        totalEarnings: 0,
+        rating: parseFloat(data.rating) || 4.8,
       };
     }
-    return MOCK_FARMER;
+    return null;
+  },
+
+  register: async (data: {
+    name: string;
+    email?: string;
+    phone_number?: string;
+    password?: string;
+    confirm_password?: string;
+    location?: string;
+    farm_size_acres?: number;
+    village?: string;
+    district?: string;
+    state?: string;
+    role?: string;
+  }) => {
+    const res = await api.register(data) as any;
+    if (res && res.access) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('krishisetu_access_token', res.access);
+        if (res.refresh) localStorage.setItem('krishisetu_refresh_token', res.refresh);
+        if (res.user) localStorage.setItem('krishisetu_current_user', JSON.stringify(res.user));
+      }
+    }
+    return res;
   },
 
   login: async (credentials: { phone_number?: string; email?: string; password?: string; otp?: string }) => {
@@ -50,7 +85,6 @@ export const authService = {
         if (res.refresh) localStorage.setItem('krishisetu_refresh_token', res.refresh);
         if (res.user) localStorage.setItem('krishisetu_current_user', JSON.stringify(res.user));
       }
-      return res;
     }
     return res;
   },
@@ -82,31 +116,53 @@ export const authService = {
     const token = localStorage.getItem('krishisetu_access_token');
     if (!token) return null;
 
-    const user = await api.getMe() as any;
-    if (user && user.id) {
-      localStorage.setItem('krishisetu_current_user', JSON.stringify(user));
-      return user;
+    try {
+      const user = await api.getMe() as any;
+      if (user && user.id) {
+        localStorage.setItem('krishisetu_current_user', JSON.stringify(user));
+        return user;
+      }
+    } catch (e) {
+      console.warn('Get me failed:', e);
     }
 
     const cached = localStorage.getItem('krishisetu_current_user');
     return cached ? JSON.parse(cached) : null;
   },
 
-  logout: () => {
+  updateProfile: async (data: any): Promise<AuthUser | null> => {
+    const updated = await api.updateProfile(data) as any;
+    if (updated && updated.id) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('krishisetu_current_user', JSON.stringify(updated));
+      }
+      return updated;
+    }
+    return null;
+  },
+
+  changePassword: async (data: { old_password: string; new_password: string; confirm_new_password?: string }) => {
+    return await api.changePassword(data);
+  },
+
+  requestPasswordReset: async (email: string) => {
+    return await api.passwordReset({ email });
+  },
+
+  confirmPasswordReset: async (data: { uidb64: string; token: string; new_password: string; confirm_new_password?: string }) => {
+    return await api.passwordResetConfirm(data);
+  },
+
+  logout: async () => {
+    try {
+      await api.logout();
+    } catch (e) {
+      // Ignore network errors on logout
+    }
     if (typeof window !== 'undefined') {
       localStorage.removeItem('krishisetu_access_token');
       localStorage.removeItem('krishisetu_refresh_token');
       localStorage.removeItem('krishisetu_current_user');
     }
-  },
-
-  register: async (data: any) => {
-    const res = await api.register(data) as any;
-    if (res && res.access && typeof window !== 'undefined') {
-      localStorage.setItem('krishisetu_access_token', res.access);
-      if (res.refresh) localStorage.setItem('krishisetu_refresh_token', res.refresh);
-      if (res.user) localStorage.setItem('krishisetu_current_user', JSON.stringify(res.user));
-    }
-    return res;
   },
 };

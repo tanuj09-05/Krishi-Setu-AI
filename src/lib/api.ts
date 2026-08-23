@@ -60,27 +60,39 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
           }
         }
       }
-      console.warn(`API request to ${url} failed with status ${res.status}`);
+      
+      const errorData = await res.json().catch(() => null);
+      if (errorData) {
+        throw { status: res.status, data: errorData };
+      }
       return null;
     }
 
     return await res.json();
-  } catch (error) {
-    // Graceful offline fallback
+  } catch (error: any) {
+    if (error && error.status) {
+      throw error;
+    }
     console.warn(`Could not reach Django API at ${url}. Using local fallback.`, error);
     return null;
   }
 }
 
 export const api = {
-  // Auth
+  // Authentication
   register: (data: any) => fetchApi('/auth/register/', { method: 'POST', body: JSON.stringify(data) }),
   login: (data: any) => fetchApi('/auth/login/', { method: 'POST', body: JSON.stringify(data) }),
   refreshToken: (refresh: string) => fetchApi('/auth/refresh/', { method: 'POST', body: JSON.stringify({ refresh }) }),
   getMe: () => fetchApi('/auth/me/'),
+  updateProfile: (data: any) => fetchApi('/auth/me/', { method: 'PATCH', body: JSON.stringify(data) }),
+  changePassword: (data: any) => fetchApi('/auth/change-password/', { method: 'POST', body: JSON.stringify(data) }),
+  passwordReset: (data: any) => fetchApi('/auth/password-reset/', { method: 'POST', body: JSON.stringify(data) }),
+  passwordResetConfirm: (data: any) => fetchApi('/auth/password-reset-confirm/', { method: 'POST', body: JSON.stringify(data) }),
+  logout: () => fetchApi('/auth/logout/', { method: 'POST' }),
 
   // Farmer
   getFarmerProfile: () => fetchApi('/farmer/profile/'),
+  updateFarmerProfile: (data: any) => fetchApi('/farmer/profile/', { method: 'PUT', body: JSON.stringify(data) }),
 
   // Crops
   getCrops: () => fetchApi('/crops/'),
@@ -98,31 +110,39 @@ export const api = {
     fetchApi(`/markets/compare/?crop=${crop}&quantity_kg=${quantityKg}`),
 
   // Buyers
-  getBuyers: () => fetchApi('/buyers/'),
-  getBuyerDemand: (crop?: string) => fetchApi(`/buyers/demand/${crop ? `?crop=${crop}` : ''}`),
+  getBuyers: (crop?: string) => fetchApi(`/buyers/${crop ? `?crop=${crop}` : ''}`),
+  getBuyerDetail: (id: string | number) => fetchApi(`/buyers/${id}/`),
+  sendLotProposal: (buyerId: string | number, data: any) =>
+    fetchApi(`/buyers/${buyerId}/send_lot/`, { method: 'POST', body: JSON.stringify(data) }),
 
-  // Lots
-  getLots: (scope?: string) => fetchApi(`/lots/${scope ? `?scope=${scope}` : ''}`),
-  createLot: (data: any) => fetchApi('/lots/', { method: 'POST', body: JSON.stringify(data) }),
+  // Digital Lots
+  getLots: (params: { status?: string; crop?: string; scope?: string } = {}) => {
+    const q = new URLSearchParams(params as any).toString();
+    return fetchApi(`/lots/${q ? `?${q}` : ''}`);
+  },
   getLotDetail: (id: string | number) => fetchApi(`/lots/${id}/`),
-  createOffer: (data: any) => fetchApi('/lots/offers/', { method: 'POST', body: JSON.stringify(data) }),
-  respondToOffer: (offerId: number, action: 'accept' | 'reject' | 'counter', counterPrice?: number) =>
-    fetchApi(`/lots/offers/${offerId}/`, {
-      method: 'PATCH',
-      body: JSON.stringify({ action, counter_price: counterPrice }),
-    }),
+  createLot: (lotData: any) => fetchApi('/lots/', { method: 'POST', body: JSON.stringify(lotData) }),
+  createOffer: (offerData: any) => fetchApi('/lots/offers/', { method: 'POST', body: JSON.stringify(offerData) }),
+  respondToOffer: (lotId: string | number, offerId: string | number, data: any) =>
+    fetchApi(`/lots/${lotId}/offers/${offerId}/respond/`, { method: 'POST', body: JSON.stringify(data) }),
 
-  // AI Recommendation
+  // AI Decision & Recommendation Engine
+  getSaleRecommendation: (crop: string = 'Tomato', quantityKg: number = 500) =>
+    fetchApi(`/recommendations/sale-timing/?crop=${crop}&quantity_kg=${quantityKg}`),
   generateRecommendation: (data: any) =>
-    fetchApi('/recommendations/', { method: 'POST', body: JSON.stringify(data) }),
-  getLatestRecommendation: () => fetchApi('/recommendations/latest/'),
+    fetchApi('/recommendations/sale-timing/', { method: 'POST', body: JSON.stringify(data) }),
 
-  // Logistics
-  getLogistics: () => fetchApi('/logistics/'),
+  // Logistics & Freight Matching
+  getTransportVehicles: () => fetchApi('/logistics/vehicles/'),
   getVehicles: () => fetchApi('/logistics/vehicles/'),
-  bookLogistics: (data: any) => fetchApi('/logistics/', { method: 'POST', body: JSON.stringify(data) }),
+  estimateLogistics: (distanceKm: number, weightKg: number) =>
+    fetchApi(`/logistics/estimate/?distance_km=${distanceKm}&weight_kg=${weightKg}`),
+  getBookings: () => fetchApi('/logistics/bookings/'),
+  getLogistics: () => fetchApi('/logistics/bookings/'),
+  createBooking: (bookingData: any) => fetchApi('/logistics/bookings/', { method: 'POST', body: JSON.stringify(bookingData) }),
+  bookLogistics: (bookingData: any) => fetchApi('/logistics/bookings/', { method: 'POST', body: JSON.stringify(bookingData) }),
 
-  // Transactions
+  // Payment & Escrow Settlements
   getTransactions: () => fetchApi('/transactions/'),
   getTransactionDetail: (id: string | number) => fetchApi(`/transactions/${id}/`),
 };

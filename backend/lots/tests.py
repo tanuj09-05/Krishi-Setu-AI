@@ -86,6 +86,19 @@ class LotPermissionsAndIsolationTests(TestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_farmer_scope_mine_isolates_data(self):
+        # Farmer 1 queries own lots
+        self.client.force_authenticate(user=self.farmer_user1)
+        res1 = self.client.get(f"{reverse('lot-list')}?scope=mine")
+        self.assertEqual(res1.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res1.data.get('results', res1.data)), 1)
+
+        # Farmer 2 queries own lots -> gets 0
+        self.client.force_authenticate(user=self.farmer_user2)
+        res2 = self.client.get(f"{reverse('lot-list')}?scope=mine")
+        self.assertEqual(res2.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res2.data.get('results', res2.data)), 0)
+
     def test_buyer_can_view_published_lot(self):
         self.client.force_authenticate(user=self.buyer_user)
         response = self.client.get(reverse('lot-detail', kwargs={'pk': self.lot1.id}))

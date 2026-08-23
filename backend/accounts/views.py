@@ -4,8 +4,21 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.conf import settings
+from .serializers import (
+    UserSerializer,
+    RegisterSerializer,
+    LoginSerializer,
+    UserProfileUpdateSerializer,
+    ChangePasswordSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer,
+)
 from .models import User
+
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -58,27 +71,71 @@ class MeView(APIView):
 
     def get(self, request):
         serializer = UserSerializer(request.user)
-        data = serializer.data
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # Attach associated profile metadata based on role
-        if request.user.role == User.Role.FARMER and hasattr(request.user, 'farmer_profile'):
-            fp = request.user.farmer_profile
-            data['farmer_profile'] = {
-                'id': fp.id,
-                'village': fp.village,
-                'district': fp.district,
-                'trust_score': fp.trust_score,
-                'kyc_verified': fp.verification_status == 'VERIFIED',
-                'bank_account_linked': fp.bank_account_linked,
-            }
-        elif request.user.role == User.Role.BUYER and hasattr(request.user, 'buyer_profile'):
-            bp = request.user.buyer_profile
-            data['buyer_profile'] = {
-                'id': bp.id,
-                'business_name': bp.business_name,
-                'buyer_type': bp.buyer_type,
-                'verified': bp.verified,
-                'rating': float(bp.rating),
-            }
+    def put(self, request):
+        return self.patch(request)
 
-        return Response(data, status=status.HTTP_200_OK)
+    def patch(self, request):
+        serializer = UserProfileUpdateSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'message': 'Password has been changed successfully.'},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            identifier = serializer.validated_data['email']
+            user = User.objects.filter(email__iexact=identifier).first() or User.objects.filter(phone_number=identifier).first()
+            
+            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            
+            response_data = {
+                'message': 'Password reset instructions generated successfully.',
+                'uidb64': uidb64,
+                'token': token,
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'message': 'Password has been reset successfully. You can now log in.'},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        # Allow client-side token discard with successful acknowledgment
+        return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)

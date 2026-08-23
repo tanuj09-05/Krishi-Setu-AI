@@ -13,18 +13,18 @@ import {
   UserCheck2,
   ShieldCheck,
   MapPin,
+  LogIn,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const { farmer, lots } = useApp();
-  const { currentRole, currentUser, isBuyer, isFPO, isAdmin } = useAuth();
+  const { currentUser, currentRole, isAuthenticated, isBuyer, isFPO, isAdmin } = useAuth();
 
   const activeCropsCount = lots.filter(
     (l) => l.status === 'active_listed' || l.status === 'offer_received'
   ).length;
 
-  // Simplified 5-item Navigation for Farmers
   let navItems: { name: string; href: string; icon: React.ElementType; badge?: string | null; isSell?: boolean }[] = [
     { name: 'Home',     href: '/',       icon: Home },
     { name: 'My Crops', href: '/crops',   icon: Sprout,        badge: activeCropsCount > 0 ? String(activeCropsCount) : null },
@@ -33,7 +33,6 @@ export const Sidebar: React.FC = () => {
     { name: 'Profile',  href: '/profile', icon: UserCheck2 },
   ];
 
-  // Specific role labels if testing Buyer/FPO/Admin
   if (isBuyer) {
     navItems = [
       { name: 'Home',        href: '/',       icon: Home },
@@ -60,12 +59,8 @@ export const Sidebar: React.FC = () => {
     ];
   }
 
-  const displayName = currentUser?.name || (isBuyer ? 'Reliance Retail Hub' : isFPO ? 'Sahyadri Agro FPO' : farmer.name);
-  const subtitle = isBuyer
-    ? 'Nashik Procurement Hub'
-    : isFPO
-    ? 'Member Collective · 320 Farmers'
-    : `${farmer.village}, ${farmer.district}`;
+  const displayName = currentUser?.name || farmer.name || 'My Account';
+  const displayLocation = currentUser?.location || (farmer.village ? `${farmer.village}, ${farmer.district}` : 'Maharashtra');
 
   return (
     <aside className="hidden lg:flex flex-col w-52 shrink-0 bg-[#fafaf9] border-r border-stone-200/80 min-h-[calc(100vh-3.5rem)]">
@@ -79,7 +74,7 @@ export const Sidebar: React.FC = () => {
             <p className="text-xs font-semibold text-stone-900 truncate leading-tight">{displayName}</p>
             <div className="flex items-center gap-1 text-2xs text-stone-500 mt-0.5">
               <MapPin className="w-2.5 h-2.5 text-stone-400 shrink-0" />
-              <span className="truncate">{subtitle}</span>
+              <span className="truncate">{displayLocation}</span>
             </div>
           </div>
         </div>

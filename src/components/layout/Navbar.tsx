@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { useAuth, UserRoleType } from '../../context/AuthContext';
 import {
@@ -16,18 +17,24 @@ import {
   ShieldAlert,
   Mic,
   Check,
+  User,
+  LogOut,
+  LogIn,
 } from 'lucide-react';
 import { VoiceAssistantModal } from '../voice/VoiceAssistantModal';
 
 export const Navbar: React.FC = () => {
+  const router = useRouter();
   const { language, setLanguage, farmer } = useApp();
-  const { currentRole, currentUser, loginAsRole } = useAuth();
+  const { currentUser, currentRole, isAuthenticated, loginAsRole, logout } = useAuth();
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
   const roleRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -37,16 +44,19 @@ export const Navbar: React.FC = () => {
       if (langRef.current && !langRef.current.contains(e.target as Node)) {
         setIsLangDropdownOpen(false);
       }
+      if (userRef.current && !userRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
   const rolesList: { id: UserRoleType; label: string; icon: React.ElementType; subtitle: string }[] = [
-    { id: 'FARMER',  label: 'Farmer',        icon: UserCheck,   subtitle: 'Rameshwar Patil · Dindori' },
-    { id: 'BUYER',   label: 'Buyer',          icon: Briefcase,   subtitle: 'Reliance Retail Hub · Ozar' },
-    { id: 'FPO',     label: 'FPO Aggregator', icon: Building2,   subtitle: 'Sahyadri Farmers Collective' },
-    { id: 'ADMIN',   label: 'Administrator',  icon: ShieldAlert, subtitle: 'System Admin — Full Access' },
+    { id: 'FARMER',  label: 'Farmer',        icon: UserCheck,   subtitle: 'Direct Farmer Account' },
+    { id: 'BUYER',   label: 'Buyer',          icon: Briefcase,   subtitle: 'Reliance / BigBasket Hub' },
+    { id: 'FPO',     label: 'FPO Aggregator', icon: Building2,   subtitle: 'Farmer Producer Collective' },
+    { id: 'ADMIN',   label: 'Administrator',  icon: ShieldAlert, subtitle: 'Full System Access' },
   ];
 
   const voiceBtnLabel = language.toLowerCase().includes('marathi')
@@ -62,6 +72,7 @@ export const Navbar: React.FC = () => {
   ];
 
   const roleLabel = rolesList.find(r => r.id === currentRole)?.label ?? currentRole;
+  const displayName = currentUser?.name || farmer.name || 'Account';
 
   return (
     <>
@@ -136,13 +147,13 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
 
-              {/* Role switcher */}
+              {/* Demo Role Switcher */}
               <div className="relative" ref={roleRef}>
                 <button
                   onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
                   className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-stone-700 bg-stone-100 hover:bg-stone-200/80 rounded-md border border-stone-200/60 transition-colors"
                   aria-expanded={isRoleDropdownOpen}
-                  aria-label="Switch role"
+                  aria-label="Switch demo role"
                 >
                   <span className="hidden md:inline text-stone-400">Role:</span>
                   <span className="font-semibold text-stone-900">{roleLabel}</span>
@@ -152,7 +163,7 @@ export const Navbar: React.FC = () => {
                 {isRoleDropdownOpen && (
                   <div className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-menu border border-stone-200 py-1 z-50 animate-slide-up">
                     <div className="px-3 py-1.5 border-b border-stone-100 mb-0.5">
-                      <p className="text-2xs font-semibold text-stone-400 uppercase tracking-wider">Demo User Profile</p>
+                      <p className="text-2xs font-semibold text-stone-400 uppercase tracking-wider">Demo User Switcher</p>
                     </div>
                     {rolesList.map((r) => {
                       const Icon = r.icon;
@@ -182,16 +193,63 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
 
-              {/* Trust Score */}
-              {currentRole === 'FARMER' && (
-                <Link
-                  href="/profile"
-                  className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-stone-200 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-brand-700" />
-                  <span className="font-semibold tabular-nums">{farmer.trustScore}%</span>
-                </Link>
+              {/* User Account / Auth Actions */}
+              {isAuthenticated ? (
+                <div className="relative" ref={userRef}>
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-md hover:bg-stone-100 border border-stone-200 transition"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-brand-700 text-white flex items-center justify-center text-2xs font-bold shrink-0">
+                      {displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                    </div>
+                    <span className="hidden sm:inline text-xs font-semibold text-stone-800 max-w-[100px] truncate">
+                      {displayName}
+                    </span>
+                    <ChevronDown className="w-3 h-3 text-stone-400 hidden sm:inline" />
+                  </button>
+
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-menu border border-stone-200 py-1 z-50 animate-slide-up text-xs">
+                      <div className="px-3 py-2 border-b border-stone-100">
+                        <p className="font-semibold text-stone-900 truncate">{displayName}</p>
+                        <p className="text-2xs text-stone-400 truncate">{currentUser?.email || currentUser?.phone_number}</p>
+                      </div>
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 text-stone-700 hover:bg-stone-50"
+                      >
+                        <User className="w-3.5 h-3.5 text-stone-400" />
+                        <span>My Profile</span>
+                      </Link>
+                      <button
+                        onClick={() => { logout(); setIsUserMenuOpen(false); }}
+                        className="w-full text-left flex items-center gap-2 px-3 py-2 text-rose-700 hover:bg-rose-50 border-t border-stone-100"
+                      >
+                        <LogOut className="w-3.5 h-3.5 text-rose-600" />
+                        <span>Log Out</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <Link
+                    href="/login"
+                    className="px-2.5 py-1.5 text-xs font-semibold text-stone-700 hover:text-stone-900 hover:bg-stone-100 rounded-md transition"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="px-3 py-1.5 bg-brand-700 hover:bg-brand-800 text-white font-semibold text-xs rounded-md shadow-subtle transition"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
               )}
+
             </div>
           </div>
         </div>

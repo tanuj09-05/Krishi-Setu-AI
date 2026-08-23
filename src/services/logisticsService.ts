@@ -125,4 +125,7 @@ export const logisticsService = {
 
     return MOCK_LOGISTICS[0];
   },
+  createBooking: async (bookingData: any): Promise<LogisticsBooking> => {
+    return logisticsService.bookLogistics(bookingData);
+  },
 };
